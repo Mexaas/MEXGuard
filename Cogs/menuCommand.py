@@ -93,7 +93,7 @@ class SelectMenu(disnake.ui.StringSelect):
 
 class DropDownSelect(disnake.ui.View):
     def __init__(self):
-        super().__init__(timeout=15)
+        super().__init__(timeout=45)
         self.add_item(SelectMenu())
         self.message = None
 
