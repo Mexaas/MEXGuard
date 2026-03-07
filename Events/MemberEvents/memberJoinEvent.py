@@ -5,7 +5,7 @@ from Database.database import db
 
 class DropDownView(disnake.ui.View):
     def __init__(self):
-        super().__init__(timeout=30)
+        super().__init__(timeout=86400)
         self.data = {}
         self.cache = {}
         self.message = None
