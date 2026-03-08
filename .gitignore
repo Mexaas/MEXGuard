@@ -1,8 +1,7 @@
-.idea
+pyrightconfig.json
 .venv
 .vscode
 __pycache__
 userdata.db
 userdata.db-shm
 userdata.db-wal
-
