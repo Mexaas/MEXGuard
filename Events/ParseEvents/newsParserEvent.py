@@ -28,11 +28,7 @@ class NewsParser(commands.Cog):
         embed.set_image(url=image_url) if image_url and image_url.startswith(("https://", "http://")) else None
 
         channel = self.bot.get_channel(1476962060092051547)
-        await channel.send(
-            content="@everyone",
-            allowed_mentions=disnake.AllowedMentions(everyone=True),
-            embed=embed
-        )
+        await channel.send(embed=embed)
 
 def setup(bot):
     bot.add_cog(NewsParser(bot))
