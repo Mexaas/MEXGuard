@@ -18,7 +18,7 @@ class DropDownView(disnake.ui.View):
         )
         welcome_button.callback = self.welcome_callback
         self.add_item(welcome_button)
-    
+
     async def on_timeout(self):
         self.cache.clear()
         for item in self.children:
@@ -34,16 +34,16 @@ class DropDownView(disnake.ui.View):
             if newbie_role:
                 if body.author.id == newbie_id:
                     await body.response.send_message(
-                        f"# :x: Ошибка!\n"
-                        f"- Вы не можете поприветствовать ` самого ` себя!",
+                        "# :x: Ошибка!\n"
+                        "- Вы не можете поприветствовать ` самого ` себя!",
                         ephemeral=True,
                         delete_after=20
                     )
                     return
                 if body.message.id in self.cache.get(body.author.id, set()):
                     await body.response.send_message(
-                        f"# :x: Ошибка!\n"
-                        f"- Вы уже поприветствовали ` данного ` пользователя!",
+                        "# :x: Ошибка!\n"
+                        "- Вы уже поприветствовали ` данного ` пользователя!",
                         ephemeral=True,
                         delete_after=20
                     )
@@ -55,7 +55,7 @@ class DropDownView(disnake.ui.View):
                 )
                 self.cache.setdefault(body.author.id, set()).add(body.message.id)
                 return
-            await body.response.send_message(f"# :x: Ошибка!\n- Пользователь еще не ` прошёл капчу `!", ephemeral=True, delete_after=10)
+            await body.response.send_message("# :x: Ошибка!\n- Пользователь еще не ` прошёл капчу `!", ephemeral=True, delete_after=10)
 
 class FirstMemberJoinEvent(commands.Cog):
     def __init__(self, bot):
@@ -65,7 +65,7 @@ class FirstMemberJoinEvent(commands.Cog):
         }
     def get_image(self, value: str) -> disnake.File:
         return disnake.File(self.image_type[value], Path(self.image_type[value]).name)
-    
+
     @commands.Cog.listener()
     async def on_member_join(self, member):
         if member.bot: return
