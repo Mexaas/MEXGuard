@@ -9,7 +9,7 @@ class NewsParser(commands.Cog):
         self.client = aiohttp.ClientSession()
         self.parser.start()
 
-    @tasks.loop(hours=6)
+    @tasks.loop(seconds=30)
     async def parser(self):
         async with self.client.get("https://newsapi.org/v2/everything?q=AI OR programming OR software&language=ru&from=2026-02-07&sortBy=publishedAt&apiKey=66e1fa12c72847cd9226a1f590efd367") as response:
             data = await response.json()
