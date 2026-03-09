@@ -13,14 +13,14 @@ class NewsParser(commands.Cog):
         async with aiohttp.ClientSession() as session:
             async with session.get("https://newsapi.org/v2/everything?q=AI OR programming OR software&language=ru&from=2026-02-07&sortBy=publishedAt&apiKey=66e1fa12c72847cd9226a1f590efd367") as response:
                 data = await response.json()
-        if "articles" not in data or not data["articles"]:
+        if "articles" not in data or not data['articles']:
             return
-        article = random.choice(data["articles"])
+        article = random.choice(data['articles'])
         embed = disnake.Embed(
             title="",
             description=
             f"# {self.bot.get_emoji(1477235040084557848)} Новостная лента\n"
-            f"- {article['title'].capitalize()}\n"
+            f"- {article['title']}\n"
             f"> {article['description']}\n"
             f"\nСтатья: ||{article['url']}||",
             color=0x7e57ff
