@@ -14,9 +14,9 @@ class NewsParser(commands.Cog):
         async with self.client.get("https://newsapi.org/v2/everything?q=AI OR programming OR software&language=ru&from=2026-02-07&sortBy=publishedAt&apiKey=66e1fa12c72847cd9226a1f590efd367") as response:
             data = await response.json()
 
-        if "articles" not in data or not data['articles']:
+        if "articles" not in data or not data["articles"]:
             return
-        article = random.choice(data['articles'])
+        article = random.choice(data["articles"])
         embed = disnake.Embed(
             title="",
             description=
