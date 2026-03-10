@@ -29,8 +29,14 @@ class DropDownView(disnake.ui.View):
     async def welcome_callback(self, body: disnake.MessageInteraction):
         if body.message.id in self.data:
             newbie_id = self.data[body.message.id]
-            newbie_role = (await body.guild.fetch_member(newbie_id)).get_role(1476451132560773161)
             newbie_user = await body.guild.fetch_member(newbie_id)
+            if not newbie_user:
+                await body.response.send_message("# :x: Ошибка!\n- Участник ` не на сервере `, или ` зашёл ` давно",
+                    ephemeral=True
+                )
+                return
+
+            newbie_role = newbie_user.get_role(1476451132560773161)
             if newbie_role:
                 if body.author.id == newbie_id:
                     await body.response.send_message(
@@ -50,8 +56,7 @@ class DropDownView(disnake.ui.View):
                     return
                 await body.response.send_message(
                     f"# {await body.guild.fetch_emoji(self.emojis[0])} Система приветствий\n"
-                    f"- {newbie_user.mention}, вас поприветствовал {body.user.mention}!",
-                    delete_after=20
+                    f"- {newbie_user.mention}, вас поприветствовал {body.user.mention}!"
                 )
                 self.cache.setdefault(body.author.id, set()).add(body.message.id)
                 return
