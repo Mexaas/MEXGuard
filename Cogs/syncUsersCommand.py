@@ -9,40 +9,37 @@ class SyncUsersCommand(commands.Cog):
     @commands.slash_command(description="Синхронизирует всех пользователей с БД", guild_ids=[1466509350100013226])
     async def sync(self, body: disnake.ApplicationCommandInteraction):
         await body.response.defer()
-        for user in body.guild.members():
+        for user in body.guild.members:
             await db.execute(
                 """
                 INSERT INTO users(user_id, user_name, user_age, user_description)
                 VALUES (?, ?, ?, ?)
-                ON_CONFLICT(user_id) DO UPDATE
-                SET user_id = excluded.user_id,
-                    user_age = excluded.user_age,
+                ON CONFLICT(user_id) DO UPDATE
+                SET user_age = excluded.user_age,
                     user_name = excluded.user_name,
                     user_description = excluded.user_description
                 """,
-                (body.author.id, "Не указано", 16, "Не указано")
+                (user.id, "Не указано", 16, "Не указано")
             )
             await db.execute(
                 """
                 INSERT INTO user_stats(user_id, user_level, user_level_role, user_exp, user_stars)
                 VALUES (?, ?, ?, ?, ?)
-                ON_CONFLICT(user_id) DO UPDATE
-                SET user_id = excluded.user_id,
-                    user_level = excluded.user_level,
+                ON CONFLICT(user_id) DO UPDATE
+                SET user_level = excluded.user_level,
                     user_level_role = excluded.user_level_role,
                     user_exp = excluded.user_exp,
                     user_stars = excluded.user_stars
                 """,
-                (body.author.id, 0, 12345, 0, 0)
+                (user.id, 0, 12345, 0, 0)
             )
             await db.execute(
                 """
                 INSERT INTO user_bio(user_id, user_langs, user_tech,
                 user_experience, user_status, user_github, user_gitlab, user_achievements)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ON_CONFLICT(user_id) DO UPDATE
-                SET user_id = excluded.user_id,
-                    user_langs = excluded.user_langs,
+                ON CONFLICT(user_id) DO UPDATE
+                SET user_langs = excluded.user_langs,
                     user_tech = excluded.user_tech,
                     user_experience = excluded.user_experience,
                     user_status = excluded.user_status,
@@ -50,9 +47,9 @@ class SyncUsersCommand(commands.Cog):
                     user_gitlab = excluded.user_gitlab,
                     user_achievements = excluded.user_achievements
                 """,
-                (body.author.id, "Нет", "Нет", 0, "Нет", "Нет", "Нет", "Нет")
+                (user.id, "Нет", "Нет", 0, "Нет", "Нет", "Нет", "Нет")
             )
-            await db.commit()
+        await db.commit()
         await body.response.send_message(
             "# :inbox_tray: Отлично!\n- Все пользователи ` синхронизированы `!"
             "\n> Значения взяты как ` базовые ` и подставлены под каждого пользователя",
