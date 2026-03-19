@@ -1,6 +1,7 @@
 import disnake
 from disnake.ext import commands
 from pathlib import Path
+from Database.database import db
 
 class SelectMenu(disnake.ui.StringSelect):
     def __init__(self):
@@ -49,20 +50,61 @@ class SelectMenu(disnake.ui.StringSelect):
             view.message = await body.original_message()
             return
         elif self.values[0].__contains__("profile"):
+            # CREATE TABLE IF NOT EXISTS users (
+            #     user_id INTEGER PRIMARY KEY,
+            #     user_name TEXT DEFAULT 'Нет',
+            #     user_age INTEGER DEFAULT 0,
+            #     user_description TEXT DEFAULT 'Нет',
+            #     join_value INTEGER DEFAULT 1
+            # );
+            # CREATE TABLE IF NOT EXISTS user_stats (
+            #     user_id INTEGER NOT NULL,
+            #     user_level INTEGER DEFAULT 1,
+            #     user_level_role INTEGER DEFAULT 1476451132560773161,
+            #     user_exp INTEGER DEFAULT 0,
+            #     user_stars INTEGER,
+            #     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+            # );
+            # CREATE TABLE IF NOT EXISTS user_bio (
+            #     user_id INTEGER NOT NULL,
+            #     user_langs TEXT DEFAULT 'Нет',
+            #     user_tech TEXT DEFAULT 'Нет',
+            #     user_experience INTEGER DEFAULT 0,
+            #     user_status TEXT DEFAULT 'Нет',
+            #     user_github TEXT DEFAULT 'Не указано',
+            #     user_gitlab TEXT DEFAULT 'Не указано',
+            #     user_achievements TEXT DEFAULT 'Нет',
+            #     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+            # );
             view = DropDownSelect()
+            async with db.execute(
+                """
+                SELECT u.user_id, u.user_age, u.user_description
+                FROM users u
+                LEFT JOIN user_stats s ON u.user_id = s.user_id
+                LEFT JOIN user_bio b ON u.user_id = b.user_id
+                WHERE user_id = ?
+                """,
+                (body.author.id,)
+            ) as cursor:
+                row = await cursor.fetchone()
+            if not row:
+                user_name, user_age, user_description, user_langs, user_tech, user_experience, user_github, user_gitlab, user_status = "Нет"
+
+            user_name, user_age, user_description, user_langs, user_tech, user_experience, user_github, user_gitlab, user_status = row
             await body.response.send_message(
                 content=(
                     f"## {await body.guild.fetch_emoji(self.emojis[4])} Пользователь\n"
-                    f"> Имя: ` Нет `\n"
-                    f"> Возраст: ` 17 `\n"
-                    f"- Обо мне: ` Нет `\n\n"
+                    f"> Имя: ` {user_name} `\n"
+                    f"> Возраст: ` {user_age} `\n"
+                    f"- Обо мне: ` {user_description} `\n\n"
                     f"## {await body.guild.fetch_emoji(self.emojis[4])} Деятельность\n"
-                    f"> Язык: ` Нет `\n"
-                    f"> Направление: ` Нет `\n"
-                    f"> Стаж: ` 0 `\n"
-                    f"> Github: ` Нет `\n"
-                    f"- Статус: ` Нет `\n"
-
+                    f"> Язык: ` {user_langs} `\n"
+                    f"> Направление: ` {user_tech} `\n"
+                    f"> Стаж: ` {user_experience} `\n"
+                    f"> Github: ` {user_github} `\n"
+                    f"> Gitlab: ` {user_gitlab} `\n"
+                    f"- Статус: ` {user_status} `\n"
                 ),
                 file=self.get_image("profile"),
                 view=view,

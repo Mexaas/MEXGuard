@@ -27,7 +27,7 @@ async def init():
             user_langs TEXT DEFAULT 'Нет',
             user_tech TEXT DEFAULT 'Нет',
             user_experience INTEGER DEFAULT 0,
-            user_status TEXT DEFAULT 'Нет', 
+            user_status TEXT DEFAULT 'Нет',
             user_github TEXT DEFAULT 'Не указано',
             user_gitlab TEXT DEFAULT 'Не указано',
             user_achievements TEXT DEFAULT 'Нет',
@@ -39,6 +39,9 @@ async def init():
             message_id INTEGER NOT NULL,
             channel_id INTEGER NOT NULL
         );
+        CREATE INDEX IF NOT EXISTS index_user_id ON users(user_id)
+        CREATE INDEX IF NOT EXISTS index_user_stats_id ON user_stats(user_id)
+        CREATE INDEX IF NOT EXISTS index_user_bio_id ON user_bio(user_id)
         """
     )
     await db.commit()
