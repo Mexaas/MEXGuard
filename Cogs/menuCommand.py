@@ -50,54 +50,57 @@ class SelectMenu(disnake.ui.StringSelect):
             view.message = await body.original_message()
             return
         elif self.values[0].__contains__("profile"):
-            # CREATE TABLE IF NOT EXISTS users (
-            #     user_id INTEGER PRIMARY KEY,
-            #     user_name TEXT DEFAULT 'Нет',
-            #     user_age INTEGER DEFAULT 0,
-            #     user_description TEXT DEFAULT 'Нет',
-            #     join_value INTEGER DEFAULT 1
-            # );
-            # CREATE TABLE IF NOT EXISTS user_stats (
-            #     user_id INTEGER NOT NULL,
-            #     user_level INTEGER DEFAULT 1,
-            #     user_level_role INTEGER DEFAULT 1476451132560773161,
-            #     user_exp INTEGER DEFAULT 0,
-            #     user_stars INTEGER,
-            #     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-            # );
-            # CREATE TABLE IF NOT EXISTS user_bio (
-            #     user_id INTEGER NOT NULL,
-            #     user_langs TEXT DEFAULT 'Нет',
-            #     user_tech TEXT DEFAULT 'Нет',
-            #     user_experience INTEGER DEFAULT 0,
-            #     user_status TEXT DEFAULT 'Нет',
-            #     user_github TEXT DEFAULT 'Не указано',
-            #     user_gitlab TEXT DEFAULT 'Не указано',
-            #     user_achievements TEXT DEFAULT 'Нет',
-            #     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
-            # );
             view = DropDownSelect()
             async with db.execute(
                 """
-                SELECT u.user_id, u.user_age, u.user_description
+                SELECT
+                    u.user_name,
+                    u.user_age,
+                    u.user_description,
+                    s.user_level,
+                    s.user_level_role,
+                    s.user_exp,
+                    s.user_stars,
+                    b.user_langs,
+                    b.user_tech,
+                    b.user_experience,
+                    b.user_status,
+                    b.user_github,
+                    b.user_gitlab,
+                    b.user_achievements
                 FROM users u
                 LEFT JOIN user_stats s ON u.user_id = s.user_id
                 LEFT JOIN user_bio b ON u.user_id = b.user_id
-                WHERE user_id = ?
+                WHERE u.user_id = ?
                 """,
                 (body.author.id,)
             ) as cursor:
                 row = await cursor.fetchone()
-            if not row:
-                user_name, user_age, user_description, user_langs, user_tech, user_experience, user_github, user_gitlab, user_status = "Нет"
 
-            user_name, user_age, user_description, user_langs, user_tech, user_experience, user_github, user_gitlab, user_status = row
+            if not row:
+                user_name = user_age = user_description = user_level = user_level_role = "Нет"
+                user_exp = user_stars = user_langs = user_tech = user_gitlab = user_status = "Нет"
+                user_experience = user_github = user_achievements = "Нет"
+            else:
+                (user_name,
+                    user_age, user_description, user_level,
+                    user_level_role, user_exp, user_stars,
+                    user_langs, user_tech, user_experience,
+                    user_status, user_github,
+                    user_gitlab, user_achievements
+                ) = row
+                role = (await body.guild.fetch_role(user_level_role)).mention if isinstance(user_level_role, int) else "` Нет `"
             await body.response.send_message(
                 content=(
                     f"## {await body.guild.fetch_emoji(self.emojis[4])} Пользователь\n"
                     f"> Имя: ` {user_name} `\n"
                     f"> Возраст: ` {user_age} `\n"
                     f"- Обо мне: ` {user_description} `\n\n"
+                    f"## {await body.guild.fetch_emoji(self.emojis[4])} Статистика\n"
+                    f"> Уровень: ` {user_level} ({user_exp} exp) `\n"
+                    f"> Звезды: ` {user_stars} `\n"
+                    f"> Достижения: ` {user_achievements} `\n"
+                    f"- Роль уровня: {role}\n\n"
                     f"## {await body.guild.fetch_emoji(self.emojis[4])} Деятельность\n"
                     f"> Язык: ` {user_langs} `\n"
                     f"> Направление: ` {user_tech} `\n"
