@@ -15,15 +15,15 @@ async def init():
             join_value INTEGER DEFAULT 1
         );
         CREATE TABLE IF NOT EXISTS user_stats (
-            user_id INTEGER NOT NULL,
+            user_id INTEGER PRIMARY KEY,
             user_level INTEGER DEFAULT 1,
-            user_level_role INTEGER DEFAULT 1476451132560773161,
+            user_level_role INTEGER DEFAULT 1477549907660378215,
             user_exp INTEGER DEFAULT 0,
             user_stars INTEGER,
             FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS user_bio (
-            user_id INTEGER NOT NULL,
+            user_id INTEGER PRIMARY KEY,
             user_langs TEXT DEFAULT 'Нет',
             user_tech TEXT DEFAULT 'Нет',
             user_experience INTEGER DEFAULT 0,
