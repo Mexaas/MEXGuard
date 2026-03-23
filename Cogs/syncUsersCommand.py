@@ -6,9 +6,10 @@ class SyncUsersCommand(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.slash_command(description="Синхронизирует всех пользователей с БД", guild_ids=[1466509350100013226])
+    @commands.slash_command(description="Синхронизирует всех пользователей с БД", guild_ids=[1466509350100013226],
+        default_member_permissions=disnake.Permissions(administrator=True))
     async def sync(self, body: disnake.ApplicationCommandInteraction):
-        await body.response.defer()
+        await body.response.defer(ephemeral=True)
         for user in body.guild.members:
             await db.execute(
                 """
@@ -31,7 +32,7 @@ class SyncUsersCommand(commands.Cog):
                     user_exp = excluded.user_exp,
                     user_stars = excluded.user_stars
                 """,
-                (user.id, 0, 12345, 0, 0)
+                (user.id, 0, 1477549907660378215, 0, 0)
             )
             await db.execute(
                 """
@@ -49,11 +50,13 @@ class SyncUsersCommand(commands.Cog):
                 """,
                 (user.id, "Нет", "Нет", 0, "Нет", "Нет", "Нет", "Нет")
             )
+            print(
+                f"{user.display_name} зарегистрирован"
+            )
         await db.commit()
-        await body.response.send_message(
+        await body.followup.send(
             "# :inbox_tray: Отлично!\n- Все пользователи ` синхронизированы `!"
             "\n> Значения взяты как ` базовые ` и подставлены под каждого пользователя",
-            ephemeral=True,
             delete_after=10
         )
 
