@@ -14,8 +14,10 @@ async def on_ready():
     await database.init()
 
     bot.load_extensions("Cogs/Captcha/")
+    bot.load_extensions("Cogs/Fun/")
     bot.load_extensions("Cogs/Threads/")
-    bot.load_extensions("Cogs/")
+    bot.load_extensions("Cogs/General/")
+    bot.load_extensions("Cogs/Moderation/")
     bot.load_extensions("Events/VerifyChannelEvents/")
     bot.load_extensions("Events/AutoThreadEvents/")
     bot.load_extensions("Events/MemberEvents/")
