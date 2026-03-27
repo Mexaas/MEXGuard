@@ -6,26 +6,49 @@ class TicTacToeButton(disnake.ui.Button):
         super().__init__(
             label="\u200B",
             style=disnake.ButtonStyle.secondary,
-            row=x
+            row=y
         )
         self.x = x
         self.y = y
     async def callback(self, body: disnake.MessageInteraction):
         view: TicTacToeRequestView = self.view
         if body.author not in (view.player_x, view.player_o):
-            return await body.response.send_message("Вы не участник игры!", ephemeral=True)
-
+            return await body.response.send_message("# :x: Ошибка\n- Вы ` не участник ` игры!", ephemeral=True,
+                delete_after=10
+            )
         if body.author == view.current_player:
-            view.current_player = view.player_o if view.current_player == view.player_x else view.player_x
+            current_cache = view.player_o if view.current_player == view.player_x else view.player_x
+
             mark = "❌" if view.current_player == view.player_x else "⭕"
+            view.board[self.y][self.x] = mark
             self.emoji = mark
             self.disabled = True
-            return await body.response.edit_message(
+            await body.response.edit_message(
                 "# :arrow_right: Крестики-нолики\n"
-                f"- Ход игрока: {view.current_player.mention}",
+                f"- Ход игрока: {current_cache.mention}",
                 view=view
             )
-        await body.response.send_message("Сейчас не ваш ход!", ephemeral=True)
+            if view.is_draw():
+                self.disable_items(view)
+                return await body.edit_original_response(
+                "# :candle: Ничья\n- Игра ` окончена `, никто не смог выиграть",
+                view=view
+            )
+            if view.is_winner():
+                self.disable_items(view)
+                return await body.edit_original_response(
+                f"# :crown: Игра окончена\n- Победитель: {current_cache}",
+                view=view
+            )
+            view.current_player = view.player_o if view.current_player == view.player_x else view.player_x
+            return
+        else:
+            return await body.response.send_message("# :x: Ошибка\n- Сейчас ` не ваш ` ход!", ephemeral=True,
+                delete_after=10
+            )
+    def disable_items(self, view):
+        for item in view.children:
+            item.disabled = True
 
 class TicTacToeRequestView(disnake.ui.View):
     def __init__(self, player_x: disnake.Member, player_o: disnake.Member):
@@ -34,7 +57,23 @@ class TicTacToeRequestView(disnake.ui.View):
         self.board = [[None for _ in range(3)] for _ in range(3)]
         self.player_x = player_x
         self.player_o = player_o
-        self.current_player = self.player_x
+        self.current_player = player_x
+
+    def is_winner(self) -> bool:
+        lines = []
+        lines.extend(x for x in self.board)
+        for y in range(3):
+            lines.append([self.board[x][y] for x in range(3)])
+
+        lines.append([self.board[i][i] for i in range(3)])
+        lines.append([self.board[i][2 - i] for i in range(3)])
+
+        for line in lines:
+            if line[0] is not None and line.count(line[0]) == 3:
+                return True
+        return False
+    def is_draw(self) -> bool:
+        return all(index is not None for row in self.board for index in row)
 
     @disnake.ui.button(label="Принять", style=disnake.ButtonStyle.success)
     async def accept_click(self, button: disnake.ui.Button, body: disnake.MessageInteraction):
@@ -44,9 +83,9 @@ class TicTacToeRequestView(disnake.ui.View):
             delete_after=10
         )
         self.clear_items()
-        for row in range(3):
-            for column in range(3):
-                self.add_item(TicTacToeButton(row, column))
+        for y in range(3):
+            for x in range(3):
+                self.add_item(TicTacToeButton(y, x))
         await body.response.edit_message(
             "# :arrow_right: Крестики-нолики\n"
             f"- Ход игрока: {self.current_player.mention}",
@@ -63,11 +102,6 @@ class TicTacToeRequestView(disnake.ui.View):
         await body.response.edit_message(
             f"# :x: Крестики-нолики\n- {self.player_o.mention} отказался от ` предложения ` пользователя {self.player_x.mention}!",
             view=None
-        )
-    async def on_timeout(self):
-        return await self.message.edit(
-            "# :x: Время вышло\n- Пользователь ` не дал ` ответ на предложение!",
-            delete_after=20, view=None
         )
 
 class TicTacToeCommand(commands.Cog):
@@ -89,8 +123,9 @@ class TicTacToeCommand(commands.Cog):
                 view = TicTacToeRequestView(body.author, пользователь)
                 await body.response.send_message(
                     f"# :clock2: Крестики-нолики\n- {пользователь.mention}, хотите ` сыграть ` с {body.author.mention}?"
-                    f"\n> У вас ` 10 ` секунд, чтобы с делать выбор",
-                    view=view
+                    f"\nУ вас ` 60 ` секунд, чтобы с делать выбор",
+                    view=view,
+                    delete_after=300
                 )
                 view.message = await body.original_response()
 
