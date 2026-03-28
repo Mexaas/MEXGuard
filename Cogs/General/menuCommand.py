@@ -50,6 +50,7 @@ class SelectMenu(disnake.ui.StringSelect):
             view.message = await body.original_message()
             return
         elif self.values[0].__contains__("profile"):
+            await body.response.defer()
             view = DropDownSelect()
             async with db.execute(
                 """
@@ -90,7 +91,7 @@ class SelectMenu(disnake.ui.StringSelect):
                     user_gitlab, user_achievements
                 ) = row
                 role = (await body.guild.fetch_role(user_level_role)).mention if isinstance(user_level_role, int) else "` Нет `"
-            await body.response.send_message(
+            await body.followup.send(
                 content=(
                     f"## {await body.guild.fetch_emoji(self.emojis[4])} Пользователь\n"
                     f"> Имя: ` {user_name} `\n"
