@@ -1,12 +1,11 @@
 import disnake
-from pathlib import Path
 from datetime import timedelta
 from disnake.ext import commands
 
 class SlapCommand(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.emojis = [1477235374127452160]
+        self.emojis = [1487385743188819968]
     #     self.image_type = {
     #         "slap_command": "Content/SlapCommand_Image.png"
     #     }
