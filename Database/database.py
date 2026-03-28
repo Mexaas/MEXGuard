@@ -12,7 +12,8 @@ async def init():
             user_name TEXT DEFAULT 'Нет',
             user_age INTEGER DEFAULT 0,
             user_description TEXT DEFAULT 'Нет',
-            join_value INTEGER DEFAULT 1
+            join_value INTEGER DEFAULT 1,
+            warns_value INTEGER DEFAULT 0
         );
         CREATE TABLE IF NOT EXISTS user_stats (
             user_id INTEGER PRIMARY KEY,

@@ -42,7 +42,7 @@ class SlapCommand(commands.Cog):
             case "да":
                 await body.response.send_message(
                     f"# {self.bot.get_emoji(self.emojis[0])} Система намордников"
-                    f"\n- {body.author.mention} ` снял ` намордник пользователю {пользователь.mention}. Он ` освобождён ` от наказания!"
+                    f"\n- {body.author.mention} ` снял ` намордник пользователю {пользователь.mention}"
                     f"\n> Причина: {причина}",
                     delete_after=240
                 )
@@ -57,7 +57,7 @@ class SlapCommand(commands.Cog):
                 return await body.response.send_message(
                     f"# {self.bot.get_emoji(self.emojis[0])} Система намордников"
                     f"\n- {body.author.mention} ` надел ` намордник пользователю {пользователь.mention} на ` {время} ` мин."
-                    " Ему стоит ` подумать ` над своим поведением!"
+                    "\nЕму стоит ` подумать ` над своим поведением!"
                     f"\n> Причина: {причина}",
                     delete_after=240
                 )
