@@ -7,11 +7,11 @@ class SlapCommand(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.emojis = [1477235374127452160]
-        self.image_type = {
-            "slap_command": "Content/SlapCommand_Image.png"
-        }
-    def get_image(self, value: str) -> disnake.File:
-        return disnake.File(self.image_type[value], Path(self.image_type[value]).name)
+    #     self.image_type = {
+    #         "slap_command": "Content/SlapCommand_Image.png"
+    #     }
+    # def get_image(self, value: str) -> disnake.File:
+    #     return disnake.File(self.image_type[value], Path(self.image_type[value]).name)
 
     allowed_answers = ["Да", "Нет"]
     @commands.slash_command(description="Отправить пользователя подумать о своем поведении",
@@ -41,11 +41,10 @@ class SlapCommand(commands.Cog):
         match снять_наказание.lower():
             case "да":
                 await body.response.send_message(
-                    f"# {self.bot.get_emoji(self.emojis[0])} Кому-то пощадили зад!"
-                    f"\n- {body.author.mention} ` решил ` оставить зад {пользователь.mention}. Он ` освобождён ` от наказания!"
+                    f"# {self.bot.get_emoji(self.emojis[0])} Система намордников"
+                    f"\n- {body.author.mention} ` снял ` намордник пользователю {пользователь.mention}. Он ` освобождён ` от наказания!"
                     f"\n> Причина: {причина}",
-                    delete_after=300,
-                    file=self.get_image("slap_command")
+                    delete_after=240
                 )
                 return await пользователь.timeout(reason=причина, duration=None)
             case _:
@@ -56,11 +55,11 @@ class SlapCommand(commands.Cog):
                     )
                 )
                 return await body.response.send_message(
-                    f"# {self.bot.get_emoji(self.emojis[0])} Кому-то дали под зад!"
-                    f"\n- {body.author.mention} ` пнул ` под зад {пользователь.mention} на ` {время} ` мин."
+                    f"# {self.bot.get_emoji(self.emojis[0])} Система намордников"
+                    f"\n- {body.author.mention} ` надел ` намордник пользователю {пользователь.mention} на ` {время} ` мин."
+                    " Ему стоит ` подумать ` над своим поведением!"
                     f"\n> Причина: {причина}",
-                    delete_after=300,
-                    file=self.get_image("slap_command")
+                    delete_after=240
                 )
 
 def setup(bot):
