@@ -12,16 +12,6 @@ bot = commands.InteractionBot(
 @bot.event
 async def on_ready():
     await database.init()
-
-    bot.load_extensions("Cogs/Captcha/")
-    bot.load_extensions("Cogs/Fun/")
-    bot.load_extensions("Cogs/Threads/")
-    bot.load_extensions("Cogs/General/")
-    bot.load_extensions("Cogs/Moderation/")
-    bot.load_extensions("Events/VerifyChannelEvents/")
-    bot.load_extensions("Events/AutoThreadEvents/")
-    bot.load_extensions("Events/MemberEvents/")
-    bot.load_extensions("Events/ParseEvents/")
     await database.db.execute("PRAGMA journal_mode=WAL;")
     await database.db.commit()
     print(
@@ -35,4 +25,13 @@ async def on_ready():
         """
     )
 
+bot.load_extensions("Cogs/Captcha/")
+bot.load_extensions("Cogs/Fun/")
+bot.load_extensions("Cogs/Threads/")
+bot.load_extensions("Cogs/General/")
+bot.load_extensions("Cogs/Moderation/")
+bot.load_extensions("Events/VerifyChannelEvents/")
+bot.load_extensions("Events/AutoThreadEvents/")
+bot.load_extensions("Events/MemberEvents/")
+bot.load_extensions("Events/ParseEvents/")
 bot.run(os.getenv("DISCORD_TOKEN"))
