@@ -5,12 +5,18 @@ from disnake.ext import commands
 class SlapCommand(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.emojis = [1477235374127452160]
 
+    allowed_answers = ["Да", "Нет"]
     @commands.slash_command(description="Отправить пользователя подумать о своем поведении",
      guild_ids=[1466509350100013226],
      default_member_permissions=disnake.Permissions(administrator=True)
     )
     async def slap(self, body: disnake.ApplicationCommandInteraction,
+        снять_наказание: str = commands.Param(
+            description="Отметьте, чтобы снять наказание пользователю",
+            choices=allowed_answers,
+        ),
         пользователь: disnake.Member = commands.Param(
             description="Пользователь, которого хотите наказать"
         ),
@@ -22,16 +28,31 @@ class SlapCommand(commands.Cog):
         ),
         время: int = commands.Param(description="Время таймаута в минутах", default=10, le=40320)
     ):
+
         if пользователь == body.author or self.bot.user == пользователь:
-            return await body.response.send_message("# :x: Ошибка\n- Введите правильные параметры",
+            return await body.response.send_message("# :x: Ошибка\n- Укажите ` правильные ` аргументы",
                 ephemeral=True, delete_after=10
             )
-        await пользователь.timeout(
-            reason=причина,
-            duration=timedelta(
-                minutes=время
-            )
-        )
+        match снять_наказание.lower():
+            case "да":
+                await body.response.send_message(
+                f"# {self.bot.get_emoji(self.emojis[0])} Кому-то пощадили зад!"
+                f"\n- {body.author.mention} ` решил ` оставить зад {пользователь.mention}. Он ` освобождён ` от наказания!"
+                f"\n> Причина: {причина}"
+                )
+                return await пользователь.timeout(reason=причина, duration=None)
+            case _:
+                await пользователь.timeout(
+                    reason=причина,
+                    duration=timedelta(
+                        minutes=время
+                    )
+                )
+                return await body.response.send_message(
+                    f"# {self.bot.get_emoji(self.emojis[0])} Кому-то дали под зад!"
+                    f"\n- {body.author.mention} ` пнул ` под зад {пользователь.mention} на ` {время} ` мин."
+                    f"\n> Причина: {причина}"
+                )
 
 def setup(bot):
     bot.add_cog(SlapCommand(bot))
