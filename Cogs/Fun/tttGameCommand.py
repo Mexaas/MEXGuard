@@ -1,4 +1,5 @@
 import disnake
+import random
 from disnake.ext import commands
 
 class TicTacToeButton(disnake.ui.Button):
@@ -58,6 +59,7 @@ class TicTacToeRequestView(disnake.ui.View):
         self.board = [[None for _ in range(3)] for _ in range(3)]
         self.player_x = player_x
         self.player_o = player_o
+        self.players = (player_x, player_o)
         self.current_player = player_x
 
     def is_winner(self) -> bool:
@@ -83,6 +85,7 @@ class TicTacToeRequestView(disnake.ui.View):
             ephemeral=True,
             delete_after=10
         )
+        start_player = random.choice(self.players)
         self.clear_items()
         for y in range(3):
             for x in range(3):
@@ -90,10 +93,11 @@ class TicTacToeRequestView(disnake.ui.View):
 
         await body.response.send_message(
             "# :arrow_right: Крестики-нолики\n"
-            f"- Ход игрока: {self.current_player.mention}"
+            f"- Ход игрока: {start_player.mention}"
             "\n:warning: Раунд длится ` 3 минуты `. После окончания - игра будет недоступна",
             view=self
         )
+        self.current_player = start_player
         await self.message.delete()
         self.message = await body.original_response()
 
