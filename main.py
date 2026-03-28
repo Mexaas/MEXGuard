@@ -9,11 +9,20 @@ bot = commands.InteractionBot(
     activity=disnake.CustomActivity(name="🌸 /menu")
 )
 
+class Bot(commands.InteractionBot):
+    async def setup_hook(self):
+        for folder in ("Cogs", "Events"):
+            for file in os.listdir(folder):
+                path = f"{folder}/{file}"
+                if os.path.isdir(path):
+                    self.load_extensions(path)
+
+        await database.init()
+        await database.db.execute("PRAGMA journal_mode=WAL;")
+        await database.db.commit()
+
 @bot.event
 async def on_ready():
-    await database.init()
-    await database.db.execute("PRAGMA journal_mode=WAL;")
-    await database.db.commit()
     print(
         f"""
         #######################
@@ -25,13 +34,4 @@ async def on_ready():
         """
     )
 
-bot.load_extensions("Cogs/Captcha/")
-bot.load_extensions("Cogs/Fun/")
-bot.load_extensions("Cogs/Threads/")
-bot.load_extensions("Cogs/General/")
-bot.load_extensions("Cogs/Moderation/")
-bot.load_extensions("Events/VerifyChannelEvents/")
-bot.load_extensions("Events/AutoThreadEvents/")
-bot.load_extensions("Events/MemberEvents/")
-bot.load_extensions("Events/ParseEvents/")
 bot.run(os.getenv("DISCORD_TOKEN"))
