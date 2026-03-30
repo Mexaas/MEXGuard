@@ -15,7 +15,7 @@ class Bot(commands.InteractionBot):
             for file in os.listdir(folder):
                 path = f"{folder}/{file}"
                 if os.path.isdir(path):
-                    self.load_extensions(path)
+                    self.load_extension(path)
 
         await database.init()
         await database.db.execute("PRAGMA journal_mode=WAL;")
