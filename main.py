@@ -9,20 +9,17 @@ bot = commands.InteractionBot(
     activity=disnake.CustomActivity(name="🌸 /menu")
 )
 
-class Bot(commands.InteractionBot):
-    async def setup_hook(self):
-        for folder in ("Cogs", "Events"):
-            for file in os.listdir(folder):
-                path = f"{folder}/{file}"
-                if os.path.isdir(path):
-                    self.load_extension(path)
-
-        await database.init()
-        await database.db.execute("PRAGMA journal_mode=WAL;")
-        await database.db.commit()
-
 @bot.event
 async def on_ready():
+    for folder in ("Cogs", "Events"):
+        for file in os.listdir(folder):
+            path = f"{folder}/{file}"
+            if os.path.isdir(path):
+                bot.load_extensions(path)
+
+    await database.init()
+    await database.db.execute("PRAGMA journal_mode=WAL;")
+    await database.db.commit()
     print(
         f"""
         #######################
