@@ -16,7 +16,7 @@ class CustomVoiceChannel(commands.Cog):
         if after.channel and after.channel.id == self.add_channel:
             overwrites = {
                 member.guild.default_role: disnake.PermissionOverwrite(connect=True),
-                member: disnake.PermissionOverwrite
+                member: disnake.PermissionOverwrite(
                     manage_channels=True,
                     move_members=True,
                     mute_members=True,
