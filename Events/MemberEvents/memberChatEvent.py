@@ -1,6 +1,6 @@
 from disnake.ext import commands
 import disnake
-from Database.database import db
+from Database import database
 
 class FirstMemberChatEvent(commands.Cog):
     def __init__(self, bot):
@@ -12,7 +12,7 @@ class FirstMemberChatEvent(commands.Cog):
     async def on_message(self, message):
         if message.author.bot: return
         if message.channel.id in self.autosetup_channels:
-            async with db.execute(
+            async with database.db.execute(
                 "SELECT join_value FROM users WHERE user_id = ?",
                 (message.author.id,)
             ) as cursor:
@@ -22,7 +22,7 @@ class FirstMemberChatEvent(commands.Cog):
                 if not row or row[0] == 1:
                     
 
-                    await db.execute(
+                    await database.db.execute(
                         """
                         INSERT INTO users (user_id, join_value)
                         VALUES (?, 0)
@@ -31,7 +31,7 @@ class FirstMemberChatEvent(commands.Cog):
                         """,
                         (message.author.id,)
                     )
-                    await db.commit()
+                    await database.db.commit()
                     
                     embed = disnake.Embed(
                         title="",
