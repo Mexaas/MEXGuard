@@ -3,7 +3,7 @@ from disnake.ext import commands
 class CustomVoiceChannel(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.add_channel = 1477280288265474139
+        self.add_channel = 1489602321859215520
 
     @commands.Cog.listener()
     async def on_voice_state_update(
