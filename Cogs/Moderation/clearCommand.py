@@ -4,8 +4,9 @@ from disnake.ext import commands
 
 class ClearView(disnake.ui.View):
     def __init__(self, bot, emoji_id: int, author: disnake.Member, delete_bot_messages: str, mentioned_user: disnake.Member):
-        super().__init__(timeout=180)
+        super().__init__(timeout=60)
         self.emoji = bot.get_emoji(emoji_id)
+        self.message = None
         self.clear_value = None
         self.author = author
         self.bot = bot
@@ -21,9 +22,16 @@ class ClearView(disnake.ui.View):
             delete_after=10
         )
         try:
-            clear_check = False
-            if not self.is_bot_messages_delete() and not self.is_user_messages_delete():
-                clear_check = True
+            def check(message):
+                delete_bots = self.is_bot_messages_delete(); delete_user = self.is_user_messages_delete()
+
+                if not delete_bots and not delete_user:
+                    return not message.author.bot
+                matches_bot = delete_bots and message.author.bot
+                matches_user = delete_user and message.author == self.mentioned_user
+
+                return matches_bot or matches_user
+
             await body.response.edit_message(
                 f"# {self.emoji} Очистка"
                 f"\n- Сжираю ` {self.clear_value} ` сообщений...",
@@ -31,11 +39,7 @@ class ClearView(disnake.ui.View):
             )
             await body.channel.purge(
                 limit=self.clear_value,
-                check=lambda message: not message.author.bot if clear_check else lambda message: (
-                    (self.is_bot_messages_delete() and message.author.bot) or
-                    (self.is_user_messages_delete() and message.author == self.mentioned_user) or
-                    (not self.is_bot_messages_delete() and not self.is_user_messages_delete())
-                )
+                check=check
             )
             await asyncio.sleep(1)
             return await body.edit_original_response(
@@ -49,6 +53,12 @@ class ClearView(disnake.ui.View):
 
     @disnake.ui.button(label="Отклонить", style=disnake.ButtonStyle.danger)
     async def deny_callback(self, button: disnake.ui.Button, body: disnake.MessageInteraction):
+        if body.author != self.author: return await body.response.send_message(
+            "# :x: Ошибка\n"
+            "- Вы не можете отвечать за ` другого ` пользователя!",
+            ephemeral=True,
+            delete_after=10
+        )
         return await body.response.edit_message(
             f"# {self.emoji} Очистка"
             f"\n- {body.author.mention}, вы ` решили ` отказаться от очистки",
@@ -58,6 +68,7 @@ class ClearView(disnake.ui.View):
     async def on_timeout(self):
         for item in self.children:
             item.disabled = True
+        await self.message.edit(view=self)
 
     def is_bot_messages_delete(self) -> bool:
         return self.delete_bot_messages == "Да"
@@ -96,6 +107,7 @@ class ClearCommand(commands.Cog):
             view=view
         )
         view.clear_value = значение
+        view.message = await body.original_response()
 
 def setup(bot):
     bot.add_cog(ClearCommand(bot))
