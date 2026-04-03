@@ -21,7 +21,7 @@ class CustomVoiceChannel(commands.Cog):
                     move_members=True,
                     mute_members=True,
                     priority_speaker=True
-                )
+                    )
             }
             new_channel = await member.guild.create_voice_channel(
                     name=f"Комната {member.display_name}",
