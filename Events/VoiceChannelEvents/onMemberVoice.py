@@ -11,12 +11,11 @@ class CustomVoiceChannel(commands.Cog):
             self, member, before, after
     ):
         if (before.channel is not None and member.name.lower() in before.channel.name.lower()) and (after.channel is None or after.channel is not None):
-
             await before.channel.delete()
         category = member.guild.get_channel(self.add_channel)
         if ((before.channel is None or before.channel is not None) and after.channel == category):
             new_channel = await member.guild.create_voice_channel(
-                    name=f"Комната {member.name}",
+                    name=f"Комната {member.name.capitalize()}",
                     category=after.channel.category
                     )
             await member.move_to(new_channel)
