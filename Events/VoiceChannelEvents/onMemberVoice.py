@@ -1,4 +1,5 @@
 from disnake.ext import commands
+import disnake
 
 class CustomVoiceChannel(commands.Cog):
     def __init__(self, bot):
