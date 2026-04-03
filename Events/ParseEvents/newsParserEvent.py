@@ -11,7 +11,7 @@ class NewsParser(commands.Cog):
 
     @tasks.loop(hours=12)
     async def parser(self):
-        async with self.client.get("https://newsapi.org/v2/everything?q=AI OR programming OR software&language=ru&from=2026-03-01&sortBy=publishedAt&apiKey=66e1fa12c72847cd9226a1f590efd367") as response:
+        async with self.client.get("https://newsapi.org/v2/everything?q=AI OR programming OR software&language=ru&from=2026-04-01&sortBy=publishedAt&apiKey=66e1fa12c72847cd9226a1f590efd367") as response:
             data = await response.json()
         article = random.choice(data["articles"])
         embed = disnake.Embed(
