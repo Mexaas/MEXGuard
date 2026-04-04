@@ -15,6 +15,12 @@ class UserFunction(commands.Cog):
     async def user(self, body: disnake.ApplicationCommandInteraction, пользователь: disnake.Member = commands.Param(
         description="Пользователь, которого нужно проанализировать"
     )):
+        if пользователь == self.bot or пользователь == body.author:
+            return await body.response.send_message(
+                "# :x: Ошибка\n"
+                "- Укажите корректного пользователя",
+                ephemeral=True
+            )
         emoji = self.bot.get_emoji(self.emoji)
         async with database.db.execute(
             """
@@ -28,12 +34,12 @@ class UserFunction(commands.Cog):
             f"Анализирую пользователя {пользователь.mention}...",
             ephemeral=True
         )
-        await asyncio.sleep(3)
-        await body.response.edit_message(
+        await asyncio.sleep(2)
+        await body.edit_original_response(
             f"# {emoji} Информация об {пользователь.mention}"
             f"\n- Предупреждения: ` {warns_value} / 3 `"
             f"\n> Находится в войсе: ` {"Да" if пользователь.voice else "Нет"} `"
-            f"\n> Зашёл на сервер: ` {пользователь.joined_at} `"
+            f"\n> Зашёл на сервер: ` {пользователь.joined_at[:21]} `"
             f"\n> Высшая роль: {пользователь.top_role.mention}"
         )
 
