@@ -69,6 +69,20 @@ class WarnFunction(commands.Cog):
                 )
             ):
         emoji = self.bot.get_emoji(self.emoji)
+        async with database.db.execute("SELECT warns_value FROM users WHERE user_id = ?", (пользователь.id,)) as cursor:
+            row = await cursor.fetchone()
+        warns = row[0] if not None else 1
+        if warns >= 3:
+            view = BanRequestView(пользователь, emoji)
+            await body.response.send_message(
+                    f"# {emoji} Система предупреждений\n"
+                    f"\n- Пользователь {пользователь.mention} имеет ` 3 / 3 ` предупреждений"
+                    "\n> Вы хотите ` заблокировать ` его?",
+                    ephemeral=True,
+                    view=view
+                    )
+            view.message = await body.original_response()
+            return
         if пользователь == self.bot:
             return await body.response.send_message(
                     f"# {emoji} Система предупреждений\n"
@@ -89,6 +103,7 @@ class WarnFunction(commands.Cog):
                     """,
                     (пользователь.id,)
                     )
+
             await database.db.commit()
             return await body.response.send_message(
                     f"# {emoji} Система предупреждений\n"
@@ -97,28 +112,13 @@ class WarnFunction(commands.Cog):
         await database.db.execute(
             """
             INSERT INTO users (user_id, warns_value)
-            VALUES (?, 0)
+            VALUES (?, 1)
             ON CONFLICT(user_id) DO UPDATE SET warns_value = warns_value + 1
             """,
             (пользователь.id,)
         )
         await database.db.commit()
 
-        async with database.db.execute("SELECT warns_value FROM users WHERE user_id = ?", (пользователь.id,)) as cursor:
-            row = await cursor.fetchone()
-        warns = row[0] if not None else 1
-
-        if warns >= 3:
-            view = BanRequestView(пользователь, emoji)
-            await body.response.send_message(
-                    f"# {emoji} Система предупреждений\n"
-                    f"\n- Пользователь {пользователь.mention} имеет ` 3 / 3 ` предупреждений"
-                    "\n> Вы хотите ` заблокировать ` его?",
-                    ephemeral=True,
-                    view=view
-                    )
-            view.message = await body.original_response()
-            return
         await body.response.send_message(
                 f"# {emoji} Система предупреждений\n"
                 f"\n- Администратор {body.author.mention} ` выдал ` предупреждение {пользователь.mention}"

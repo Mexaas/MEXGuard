@@ -15,7 +15,7 @@ class UserFunction(commands.Cog):
     async def user(self, body: disnake.ApplicationCommandInteraction, пользователь: disnake.Member = commands.Param(
         description="Пользователь, которого нужно проанализировать"
     )):
-        if пользователь == self.bot or пользователь == body.author:
+        if пользователь.bot or пользователь == body.author:
             return await body.response.send_message(
                 "# :x: Ошибка\n"
                 "- Укажите корректного пользователя",
@@ -39,7 +39,7 @@ class UserFunction(commands.Cog):
             f"# {emoji} Информация об {пользователь.mention}"
             f"\n- Предупреждения: ` {warns_value} / 3 `"
             f"\n> Находится в войсе: ` {"Да" if пользователь.voice else "Нет"} `"
-            f"\n> Зашёл на сервер: ` {пользователь.joined_at[:21]} `"
+            f"\n> Зашёл на сервер: ` {пользователь.joined_at.strftime("%Y-%m-%d %H:%M:%S")} `"
             f"\n> Высшая роль: {пользователь.top_role.mention}"
         )
 
