@@ -24,6 +24,10 @@ class SelectMenu(disnake.ui.StringSelect):
             disnake.SelectOption(
                 label="Мой профиль", emoji="👩‍💻", description="Вся информация о тебе",
                 value="profile"
+            ),
+            disnake.SelectOption(
+                label="Кастомизация ролей", emoji="🎨",
+                description="Выбери роль для себя", value="roles"
             )
         ]
         super().__init__(
@@ -121,21 +125,92 @@ class SelectMenu(disnake.ui.StringSelect):
             await body.response.send_message(
                 f"# {await body.guild.fetch_emoji(self.emojis[0])} Правила сервера\n"
                 f"- Уважайте ` пользователей ` сервера — ` оскорбления `, ` травля `, ` токсичность `, ` провокации `, ` дискриминация ` запрещены\n"
-                f">   Запрещается flood, caps, spam и реклама, кроме ` github.com ` или ` gitlab.com `\n"
-                f">   Запрещается ` любой обход ` правил или ограничений\n"
-                f">   Багоюз/абьюз ` механик ` сервера в злоумышленных целях запрещён\n"
-                f">   Накрутка активностей (` фарм XP `, ` твинк-аккаунты ` и т.п.) запрещена\n"
-                f">   Публикация ` вредоносного ` контента или материалов, которые могут ` навредить ` пользователям или серверу, запрещена\n"
-                f">   Запрещён ` слив личной ` информации, докс, угрозы и шантаж\n"
-                f">   Запрещён ` шок-контент `, ` NSFW ` и ` незаконные ` материалы\n"
-                f">   Запрещена выдача себя за администрацию или других пользователей\n"
-                f">   Решения модерации ` не обсуждаются в чатах `, только в ЛС у вышестоящих лиц\n",
+                f">    Запрещается flood, caps, spam и реклама, кроме ` github.com ` или ` gitlab.com `\n"
+                f">    Запрещается ` любой обход ` правил или ограничений\n"
+                f">    Багоюз/абьюз ` механик ` сервера в злоумышленных целях запрещён\n"
+                f">    Накрутка активностей (` фарм XP `, ` твинк-аккаунты ` и т.п.) запрещена\n"
+                f">    Публикация ` вредоносного ` контента или материалов, которые могут ` навредить ` пользователям или серверу, запрещена\n"
+                f">    Запрещён ` слив личной ` информации, докс, угрозы и шантаж\n"
+                f">    Запрещён ` шок-контент `, ` NSFW ` и ` незаконные ` материалы\n"
+                f">    Запрещена выдача себя за администрацию или других пользователей\n"
+                f">    Решения модерации ` не обсуждаются в чатах `, только в ЛС у вышестоящих лиц\n",
                 ephemeral=True,
                 file=self.get_image("rules"),
                 view=view
             )
             view.message = await body.original_message()
             return
+
+        if self.values[0] == "roles":
+            ROLES_CONFIG = [
+                {"label": "Python", "value": "1476989262955020461", "e_id": 1476965625665425682, "e_name": "python"},
+                {"label": "C++", "value": "1476989264683077704", "e_id": 1476966430581850245, "e_name": "cpp"},
+                {"label": "C#", "value": "1476989265476063446", "e_id": 1476966552858267699, "e_name": "csharp"},
+                {"label": "C", "value": "1476989267145134200", "e_id": 1476967440683372654, "e_name": "c"},
+                {"label": "Java", "value": "1476989267782926448", "e_id": 1476965671022759957, "e_name": "java"},
+                {"label": "JavaScript", "value": "1476989269225771151", "e_id": 1476964774050005012, "e_name": "javascript"},
+                {"label": "Kotlin", "value": "1476989523022970993", "e_id": 1476965607990624490, "e_name": "kotlin"},
+                {"label": "GO", "value": "1476989523660505139", "e_id": 1476968391309918261, "e_name": "go"},
+                {"label": "Swift", "value": "1476989524205637693", "e_id": 1476968873260744715, "e_name": "swift"},
+                {"label": "Ruby", "value": "1476989919435161804", "e_id": 1476966492129067071, "e_name": "ruby"},
+                {"label": "Rust", "value": "1476989920672354304", "e_id": 1476966028889030806, "e_name": "rust"},
+                {"label": "Assembly", "value": "1476989921439781086", "e_id": 1476970448385478658, "e_name": "assembly"},
+                {"label": "Fortran", "value": "1476989922702393497", "e_id": 1476970922224386192, "e_name": "fortran"},
+                {"label": "Dart", "value": "1476989923125891173", "e_id": 1476970237693005915, "e_name": "dart"},
+                {"label": "Perl", "value": "1476989923964878858", "e_id": 1476970558527897610, "e_name": "perl"},
+                {"label": "Scala", "value": "1476989926338855092", "e_id": 1476970772978335795, "e_name": "scala"},
+                {"label": "Elixir", "value": "1476989926628261949", "e_id": 1476970110534160530, "e_name": "elixir"},
+                {"label": "Bash", "value": "1476990393232134277", "e_id": 1476965637002891284, "e_name": "bash"},
+                {"label": "Lua", "value": "1476990394154746020", "e_id": 1476968706444754995, "e_name": "lua"},
+                {"label": "TypeScript", "value": "1476990394863714565", "e_id": 1476969183618269488, "e_name": "typescript"},
+                {"label": "Full-Stack", "value": "1476989272962891888", "emoji": "🌐"},
+                {"label": "Back-End", "value": "1476989270194389103", "emoji": "🔐"},
+                {"label": "Front-End", "value": "1476989273789038896", "emoji": "🚀"},
+                {"label": "Linux", "value": "1476989260753272834", "e_id": 1477007071672012861, "e_name": "linux"},
+                {"label": "Windows", "value": "1476989260086120553", "e_id": 1477007253176586362, "e_name": "windows"}
+            ]
+            view = disnake.ui.View(timeout=60)
+
+            role_options = []
+            for r in ROLES_CONFIG:
+                emoji = r.get("emoji") or disnake.PartialEmoji(name=r["e_name"], id=r["e_id"])
+                role_options.append(disnake.SelectOption(label=r["label"], value=r["value"], emoji=emoji))
+
+            select = disnake.ui.StringSelect(
+                placeholder="Выберите роли",
+                min_values=1,
+                max_values=len(role_options),
+                options=role_options
+            )
+
+            async def role_callback(inter: disnake.MessageInteraction):
+                selected_ids = [int(val) for val in select.values]
+                author_role_ids = [r.id for r in inter.author.roles]
+                all_config_ids = [int(r["value"]) for r in ROLES_CONFIG]
+
+                to_remove = []
+                to_add = []
+
+                for rid in all_config_ids:
+                    if rid in author_role_ids and rid not in selected_ids:
+                        role = inter.guild.get_role(rid)
+                        if role: to_remove.append(role)
+                    elif rid not in author_role_ids and rid in selected_ids:
+                        role = inter.guild.get_role(rid)
+                        if role: to_add.append(role)
+
+                if to_remove: await inter.author.remove_roles(*to_remove)
+                if to_add: await inter.author.add_roles(*to_add)
+
+                await inter.response.send_message("Ваши роли обновлены!", ephemeral=True)
+
+            select.callback = role_callback
+            view.add_item(select)
+
+            await body.response.send_message(
+                f"# {await body.guild.fetch_emoji(self.emojis[4])} Кастомизация ролей\nВыберите роль ниже",
+                ephemeral=True, view=view
+            )
 
 class DropDownSelect(disnake.ui.View):
     def __init__(self):
