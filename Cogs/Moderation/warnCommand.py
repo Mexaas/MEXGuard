@@ -3,24 +3,37 @@ from disnake.ext import commands
 from Database import database
 
 class BanRequestView(disnake.ui.View):
-    def __init__(self):
+    def __init__(self, user: disnake.Member, emoji):
         super().__init__(timeout=60)
         self.message = None
+        self.user = user
+        self.emoji = emoji
 
-    @disnake.ui.button(label="пошёл нахуй")
+    @disnake.ui.button(label="Да", style=disnake.ButtonStyle.danger)
     async def on_accept(self, button: disnake.ui.Button, body: disnake.MessageInteraction):
-        return await body.response.send_message(
-                f"Ну и пошёл он нахуй",
+        await self.disable_buttons()
+        await body.response.send_message(
+                f"# {self.emoji} Система предупреждений\n"
+                f"- Пользователь {self.user.mention} был ` заблокирован `",
                 ephemeral=True
                 )
-    @disnake.ui.button(label="я подумаю")
+        return await self.user.ban(
+            reason="Пользователь получил слишком много предупреждений"
+        )
+
+    @disnake.ui.button(label="Нет", style=disnake.ButtonStyle.success)
     async def on_deny(self, button: disnake.ui.Button, body: disnake.MessageInteraction):
+        await self.disable_buttons()
         return await body.response.send_message(
-                f"Ну ладно, пусть поживёт пока",
-                ephemeral=True
+                f"# {self.emoji} Система предупреждений\n"
+                f"- Вы решили не ` блокировать ` пользователя",
+                ephemeral=True,
                 )
 
     async def on_timeout(self):
+        await self.disable_buttons()
+
+    async def disable_buttons(self):
         for item in self.children:
             item.disabled = True
         await self.message.edit(view=self)
@@ -28,6 +41,7 @@ class BanRequestView(disnake.ui.View):
 class WarnFunction(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.emoji = 1477235042475315240
 
     @commands.slash_command(description="Выдаёт предупреждение пользователю",
                             guild_ids=[1466509350100013226],
@@ -54,6 +68,7 @@ class WarnFunction(commands.Cog):
                 default="Нет"
                 )
             ):
+        emoji = self.bot.get_emoji(self.emoji)
         if self.is_clean(очистить):
             await database.db.execute(
                     """
@@ -63,13 +78,13 @@ class WarnFunction(commands.Cog):
                     )
             await database.db.commit()
             return await body.response.send_message(
-                    f"Варны {пользователь.mention} были очищены",
-                    ephemeral=True
+                    f"# {emoji} Система предупреждений\n"
+                    f"Предупреждения {пользователь.mention} были ` очищены `"
                     )
         await database.db.execute(
             """
-            INSERT INTO users (user_id, warns_value) 
-            VALUES (?, 0) 
+            INSERT INTO users (user_id, warns_value)
+            VALUES (?, 0)
             ON CONFLICT(user_id) DO UPDATE SET warns_value = warns_value + 1
             """,
             (пользователь.id,)
@@ -81,19 +96,21 @@ class WarnFunction(commands.Cog):
         warns = row[0] if not None else 1
 
         if warns >= 3:
-            view = BanRequestView()
+            view = BanRequestView(пользователь, emoji)
             await body.response.send_message(
-                    f"{пользователь.mention} уже имеет 3 варна"
-                    "\nХотите ли вы ` заблокировать ` его?",
+                    f"# {emoji} Система предупреждений\n"
+                    f"\n- Пользователь {пользователь.mention} имеет ` 3 / 3 ` предупреждений"
+                    "\n> Вы хотите ` заблокировать ` его?",
                     ephemeral=True,
                     view=view
                     )
             view.message = await body.original_response()
             return
         await body.response.send_message(
-                f"Выдан варн {пользователь.mention}"
-                f"\nПользователь имеет {warns} предупреждений",
-                ephemeral=True
+                f"# {emoji} Система предупреждений\n"
+                f"\n- Администратор {body.author.mention} ` выдал ` предупреждение {пользователь.mention}"
+                f"\n> Пользователь имеет ` {warns} / 3 ` предупреждений"
+                f"\n> Причина: {причина}"
                 )
 
     def is_clean(self, value: str) -> bool:
