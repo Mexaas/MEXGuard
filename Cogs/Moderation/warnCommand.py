@@ -71,7 +71,7 @@ class WarnFunction(commands.Cog):
         emoji = self.bot.get_emoji(self.emoji)
         async with database.db.execute("SELECT warns_value FROM users WHERE user_id = ?", (пользователь.id,)) as cursor:
             row = await cursor.fetchone()
-        warns = row[0] if not None else 1
+        warns = row[0] if row is not None else 1
         if warns >= 3:
             view = BanRequestView(пользователь, emoji)
             await body.response.send_message(
