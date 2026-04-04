@@ -89,6 +89,15 @@ class WarnFunction(commands.Cog):
             row = await cursor.fetchone()
         warns = (row[0] if row else 0) + 1
 
+        await database.db.execute(
+            """
+            INSERT INTO users (user_id, warns_value)
+            VALUES (?, ?)
+            ON CONFLICT(user_id) DO UPDATE SET warns_value = ?
+            """,
+            (пользователь.id, warns, warns)
+        )
+        await database.db.commit()
         if warns >= 3:
             view = BanRequestView(пользователь, emoji)
             await body.response.send_message(
@@ -112,16 +121,6 @@ class WarnFunction(commands.Cog):
                     f"\n- Вы не можете выбрать ` самого себя `!",
                     ephemeral=True,
                     )
-
-        await database.db.execute(
-            """
-            INSERT INTO users (user_id, warns_value)
-            VALUES (?, ?)
-            ON CONFLICT(user_id) DO UPDATE SET warns_value = warns_value + ?
-            """,
-            (пользователь.id, warns, warns)
-        )
-        await database.db.commit()
         await body.response.send_message(
                 f"# {emoji} Система предупреждений\n"
                 f"\n- Администратор {body.author.mention} ` выдал ` предупреждение {пользователь.mention}"
