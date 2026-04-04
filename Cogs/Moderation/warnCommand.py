@@ -69,9 +69,22 @@ class WarnFunction(commands.Cog):
                 )
             ):
         emoji = self.bot.get_emoji(self.emoji)
+        if self.is_clean(очистить):
+            await database.db.execute(
+                    """
+                    UPDATE users SET warns_value = 0 WHERE user_id = ?
+                    """,
+                    (пользователь.id,)
+                    )
+
+            await database.db.commit()
+            return await body.response.send_message(
+                    f"# {emoji} Система предупреждений\n"
+                    f"Предупреждения {пользователь.mention} были ` очищены `"
+                    )
         async with database.db.execute("SELECT warns_value FROM users WHERE user_id = ?", (пользователь.id,)) as cursor:
             row = await cursor.fetchone()
-        warns = row[0] if row is not None else 1
+        warns = row[0] + 1 if row is not None else 1
         if warns >= 3:
             view = BanRequestView(пользователь, emoji)
             await body.response.send_message(
@@ -96,19 +109,6 @@ class WarnFunction(commands.Cog):
                     ephemeral=True,
                     )
 
-        if self.is_clean(очистить):
-            await database.db.execute(
-                    """
-                    UPDATE users SET warns_value = 0 WHERE user_id = ?
-                    """,
-                    (пользователь.id,)
-                    )
-
-            await database.db.commit()
-            return await body.response.send_message(
-                    f"# {emoji} Система предупреждений\n"
-                    f"Предупреждения {пользователь.mention} были ` очищены `"
-                    )
         await database.db.execute(
             """
             INSERT INTO users (user_id, warns_value)
