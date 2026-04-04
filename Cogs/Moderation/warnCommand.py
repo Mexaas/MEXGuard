@@ -69,6 +69,19 @@ class WarnFunction(commands.Cog):
                 )
             ):
         emoji = self.bot.get_emoji(self.emoji)
+        if пользователь == self.bot:
+            return await body.response.send_message(
+                    f"# {emoji} Система предупреждений\n"
+                    f"\n- Вы не можете выбрать ` бота `!",
+                    ephemeral=True,
+                    )
+        if пользователь == body.author:
+            return await body.response.send_message(
+                    f"# {emoji} Система предупреждений\n"
+                    f"\n- Вы не можете выбрать ` самого себя `!",
+                    ephemeral=True,
+                    )
+
         if self.is_clean(очистить):
             await database.db.execute(
                     """
