@@ -80,9 +80,9 @@ class FirstMemberJoinEvent(commands.Cog):
         view = DropDownView()
         message = await channel.send(
             f"# {self.bot.get_emoji(1477235374127452160)} Привет, {member.mention}!\n"
-            f"- Очень ` рады ` видеть тебя на сервере\n"
-            f"> Для подробной информации советуем воспользоваться\n"
-            f"> специальным меню навигации по серверу, просто введи ` /menu `\n",
+            "- Очень ` рады ` видеть тебя на сервере\n"
+            "> Для подробной информации советуем воспользоваться\n"
+            "> специальным меню навигации по серверу, просто введи ` /menu `\n",
             file=self.get_image("member_join"),
             view=view
         )

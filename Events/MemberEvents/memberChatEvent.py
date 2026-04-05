@@ -35,9 +35,8 @@ class FirstMemberChatEvent(commands.Cog):
                     
                     await message.channel.send(
                         f"# {self.bot.get_emoji(self.emojis[0])} Привет, {message.author.mention}!\n"
-                        f"- Добро пожаловать на ` {message.guild.name} `"
-                        "> Похоже ты здесь впервые 🙂"
-                        "> используй ` /menu ` для полной навигации",
+                        f"- Добро пожаловать на ` {message.guild.name} `\n"
+                        "> Используй ` /menu ` для полной навигации",
                         delete_after=60
                     )
 
