@@ -1,7 +1,7 @@
 from disnake.ext import commands
 import disnake
 from pathlib import Path
-from Database.database import db
+from Database.database import db, setup_user
 
 class DropDownView(disnake.ui.View):
     def __init__(self):
@@ -75,12 +75,8 @@ class FirstMemberJoinEvent(commands.Cog):
     async def on_member_join(self, member):
         if member.bot: return
         channel = self.bot.get_channel(1477022604778012765)
-        await db.execute(
-            "INSERT OR IGNORE INTO users (user_id, join_value) VALUES (?, ?)",
-            (member.id, 1)
-        )
-        await db.commit()
 
+        await setup_user(member.id, member.dispaly_name)
         view = DropDownView()
         message = await channel.send(
             f"# {self.bot.get_emoji(1477235374127452160)} Привет, {member.mention}!\n"
