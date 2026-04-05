@@ -34,8 +34,8 @@ class FirstMemberChatEvent(commands.Cog):
                     await database.db.commit()
                     
                     await message.channel.send(
-                        "# {self.bot.get_emoji(self.emojis[0])} Привет, {message.author.mention}!\n"
-                        "- Добро пожаловать на ` {message.guild.name} `"
+                        f"# {self.bot.get_emoji(self.emojis[0])} Привет, {message.author.mention}!\n"
+                        f"- Добро пожаловать на ` {message.guild.name} `"
                         "> Похоже ты здесь впервые 🙂"
                         "> используй ` /menu ` для полной навигации",
                         delete_after=60
