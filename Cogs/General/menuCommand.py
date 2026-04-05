@@ -1,7 +1,7 @@
 import disnake
 from disnake.ext import commands
 from pathlib import Path
-from Database.database import db
+from Database import database
 
 class SelectMenu(disnake.ui.StringSelect):
     def __init__(self):
@@ -46,7 +46,10 @@ class SelectMenu(disnake.ui.StringSelect):
             view.message
             await body.response.send_message(
                 f"# {await body.guild.fetch_emoji(self.emojis[0])} Команды\n"
-                "- /remove_thread || Удаляет ветку, если вы владелец ||",
+                "- /remove_thread || Удаляет ветку, если вы владелец ||\n"
+                "> /coinflip || Бросает монетку ||\n"
+                "> /tictactoe || Крестики-нолики ||\n"
+                "> /menu || Навигация ||",
                 ephemeral=True,
                 file=self.get_image("commands"),
                 view=view
@@ -56,7 +59,7 @@ class SelectMenu(disnake.ui.StringSelect):
         elif self.values[0].__contains__("profile"):
             await body.response.defer()
             view = DropDownSelect()
-            async with db.execute(
+            async with database.db.execute(
                 """
                 SELECT
                     u.user_name,
@@ -83,8 +86,10 @@ class SelectMenu(disnake.ui.StringSelect):
                 row = await cursor.fetchone()
 
             if not row:
-                user_name = user_age = user_description = user_level = user_level_role = "Нет"
-                user_exp = user_stars = user_langs = user_tech = user_gitlab = user_status = "Нет"
+                user_name = body.author.display_name
+                user_age = user_description = user_level_role = "Нет"
+                user_level = 0; user_exp = 0; user_stars = 0
+                user_langs = user_tech = user_gitlab = user_status = "Нет"
                 user_experience = user_github = user_achievements = "Нет"
             else:
                 (user_name,
@@ -94,7 +99,7 @@ class SelectMenu(disnake.ui.StringSelect):
                     user_status, user_github,
                     user_gitlab, user_achievements
                 ) = row
-                role = (await body.guild.fetch_role(user_level_role)).mention if isinstance(user_level_role, int) else "` Нет `"
+            role = (await body.guild.fetch_role(user_level_role)).mention if isinstance(user_level_role, int) else "` Нет `"
             await body.followup.send(
                 content=(
                     f"## {await body.guild.fetch_emoji(self.emojis[4])} Пользователь\n"
@@ -202,7 +207,7 @@ class SelectMenu(disnake.ui.StringSelect):
                 if to_remove: await inter.author.remove_roles(*to_remove)
                 if to_add: await inter.author.add_roles(*to_add)
 
-                await inter.response.send_message("Ваши роли обновлены!", ephemeral=True)
+                await inter.response.send_message("# {await body.guild.fetch_emoji(self.emojis[4])} Кастомизация ролей\n- Ваши ` роли ` обновлены!", ephemeral=True)
 
             select.callback = role_callback
             view.add_item(select)
@@ -214,7 +219,7 @@ class SelectMenu(disnake.ui.StringSelect):
 
 class DropDownSelect(disnake.ui.View):
     def __init__(self):
-        super().__init__(timeout=45)
+        super().__init__(timeout=60)
         self.add_item(SelectMenu())
         self.message = None
 
