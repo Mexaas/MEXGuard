@@ -38,8 +38,8 @@ class UserFunction(commands.Cog):
         await body.edit_original_response(
             f"# {emoji} Информация об {пользователь.mention}"
             f"\n- Предупреждения: ` {warns_value} / 3 `"
-            f"\n> Находится в войсе: ` {"Да" if пользователь.voice else "Нет"} `"
-            f"\n> Зашёл на сервер: ` {пользователь.joined_at.strftime("%Y-%m-%d %H:%M:%S")} `"
+            f"\n> Находится в войсе: ` {'Да' if пользователь.voice else 'Нет'} `"
+            f"\n> Зашёл на сервер: ` {пользователь.joined_at.strftime('%Y-%m-%d %H:%M:%S')} `"
             f"\n> Высшая роль: {пользователь.top_role.mention}"
         )
 

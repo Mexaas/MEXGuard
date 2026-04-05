@@ -1,6 +1,6 @@
 import disnake
 from disnake.ext import commands
-from Database.database import db
+from Database import database
 
 class addThreadMessage(commands.Cog):
     def __init__(self, bot):
@@ -15,14 +15,14 @@ class addThreadMessage(commands.Cog):
         # Канал идей
         if message.channel.id == self.channel_ids[0]:
             thread = await self.createThread(message, f"Публикация {message.author.display_name}", 1440, self.auto_thread_emojis)
-            await db.execute(
+            await database.db.execute(
                 """
                 INSERT OR REPLACE INTO threads (thread_id, owner_id, message_id, channel_id)
                 VALUES (?, ?, ?, ?)
                 """,
                 (thread.id, message.author.id, message.id, message.channel.id)
             )
-            await db.commit()
+            await database.db.commit()
         
         # Канал новостей
         if message.channel.id == self.channel_ids[1]:
