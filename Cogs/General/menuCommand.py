@@ -207,7 +207,7 @@ class SelectMenu(disnake.ui.StringSelect):
                 if to_remove: await body.author.remove_roles(*to_remove)
                 if to_add: await body.author.add_roles(*to_add)
 
-                await body.response.send_message("# {await body.guild.fetch_emoji(self.emojis[4])} Кастомизация ролей\n- Ваши ` роли ` обновлены!", ephemeral=True)
+                await body.response.send_message(f"# {await body.guild.fetch_emoji(self.emojis[4])} Кастомизация ролей\n- Ваши ` роли ` обновлены!", ephemeral=True)
 
             select.callback = role_callback
             view.add_item(select)
