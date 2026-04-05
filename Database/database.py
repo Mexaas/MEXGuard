@@ -18,9 +18,9 @@ async def init():
         CREATE TABLE IF NOT EXISTS user_stats (
             user_id INTEGER PRIMARY KEY,
             user_level INTEGER DEFAULT 1,
-            user_level_role INTEGER DEFAULT 1477549907660378215,
+            user_level_role INTEGER DEFAULT 1476451132560773161,
             user_exp INTEGER DEFAULT 0,
-            user_stars INTEGER,
+            user_stars INTEGER DEFAULT 0,
             FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
         );
         CREATE TABLE IF NOT EXISTS user_bio (
@@ -46,3 +46,26 @@ async def init():
         """
     )
     await db.commit()
+
+async def setup_user(id: int, username: str):
+    async with aiosqlite.connect("userdata.db") as db:
+        await db.execute(
+                """
+                INSERT OR IGNORE INTO users (user_id, user_name) VALUES (?, ?) 
+                """,
+                (id, username)
+        )
+        await db.execute(
+                """
+                INSERT OR IGNORE INTO user_stats (user_id) VALUES (?) 
+                """,
+                (id,)
+        )
+        await db.execute(
+                """
+                INSERT OR IGNORE INTO user_bio (user_id) VALUES (?) 
+                """,
+                (id,)
+        )
+        await db.commit()
+
