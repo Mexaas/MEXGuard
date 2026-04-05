@@ -188,9 +188,9 @@ class SelectMenu(disnake.ui.StringSelect):
                 options=role_options
             )
 
-            async def role_callback(inter: disnake.MessageInteraction):
+            async def role_callback(body: disnake.MessageInteraction):
                 selected_ids = [int(val) for val in select.values]
-                author_role_ids = [r.id for r in inter.author.roles]
+                author_role_ids = [r.id for r in body.author.roles]
                 all_config_ids = [int(r["value"]) for r in ROLES_CONFIG]
 
                 to_remove = []
@@ -198,16 +198,16 @@ class SelectMenu(disnake.ui.StringSelect):
 
                 for rid in all_config_ids:
                     if rid in author_role_ids and rid not in selected_ids:
-                        role = inter.guild.get_role(rid)
+                        role = body.guild.get_role(rid)
                         if role: to_remove.append(role)
                     elif rid not in author_role_ids and rid in selected_ids:
-                        role = inter.guild.get_role(rid)
+                        role = body.guild.get_role(rid)
                         if role: to_add.append(role)
 
-                if to_remove: await inter.author.remove_roles(*to_remove)
-                if to_add: await inter.author.add_roles(*to_add)
+                if to_remove: await body.author.remove_roles(*to_remove)
+                if to_add: await body.author.add_roles(*to_add)
 
-                await inter.response.send_message("# {await body.guild.fetch_emoji(self.emojis[4])} Кастомизация ролей\n- Ваши ` роли ` обновлены!", ephemeral=True)
+                await body.response.send_message("# {await body.guild.fetch_emoji(self.emojis[4])} Кастомизация ролей\n- Ваши ` роли ` обновлены!", ephemeral=True)
 
             select.callback = role_callback
             view.add_item(select)
