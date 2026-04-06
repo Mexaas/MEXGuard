@@ -20,7 +20,7 @@ class StartTerminal(commands.Cog):
         await body.edit_original_response(
                 f"# {self.bot.get_emoji(self.game_emoji['Terminal_Main_Window'])} Привет, {body.author.mention}!\n"
                 f"- Терминал: ` открыт ` (/home/**{body.author.name}**)\n"
-                "- Сторона: ` BlueTeam `"
+                "- Сторона: ` RedTeam `"
                 "> Управляйте терминалом через ` GUI `",
                 allowed_mentions=disnake.AllowedMentions.none()
                 )
