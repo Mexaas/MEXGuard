@@ -48,7 +48,7 @@ class ProfileFunction(commands.Cog):
             user_age = user_description = user_level_role = "Нет"
             user_level = user_exp = user_stars = user_experience = 0
             user_langs = user_tech = user_status = "Нет"
-            = user_achievements = "Нет"
+            user_achievements = "Нет"
             user_github = "Не указано"
             user_gitlab = "Не указано"
         else:
