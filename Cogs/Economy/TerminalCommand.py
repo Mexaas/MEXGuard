@@ -17,6 +17,39 @@ class Terminal_Back_Button(disnake.ui.Button):
         await body.response.edit_message(content=f"# <a:44503lockkey:{self.game_emoji['Terminal_Process_Open']}> Открываем...", view=None)
         await self.terminal(body)
 
+class Terminal_Operations(disnake.ui.View):
+    def __init__(self, game_emoji: dict, terminal):
+        super().__init__(timeout=None)
+        self.game_emoji = game_emoji
+        self.terminal = terminal
+
+        buttons = [
+                {
+                    "name": "Brute-Force Attack",
+                    "button": disnake.ui.Button(
+                        label="Brute-F Attack",
+                        emoji=disnake.PartialEmoji(
+                            name="Brute-Force Attack",
+                            id=self.game_emoji["Brute-Force Attack"]
+                            )
+                        ),
+                    "callback": self.on_bruteforce_callback
+                    }
+                ]
+        for btn in buttons:
+            button = btn["button"]
+
+            button.callback = btn["callback"]
+            self.add_item(button)
+
+    async def on_bruteforce_callback(self, body: disnake.MessageInteraction):
+        view = View()
+        view.add_item(Terminal_Back_Button(self.terminal, self.game_emoji))
+        await body.response.edit_message(
+                "Вы выбрали ` Brute-Force ` атаку",
+                view=view
+                )
+
 class Terminal_RoleSelect(disnake.ui.View):
     def __init__(self, game_emoji: dict, terminal):
         super().__init__(timeout=None)
@@ -108,6 +141,17 @@ class TerminalUI(disnake.ui.View):
                             )
                         ),
                     "callback": self.on_callback_role_select
+                    },
+                    {
+                    "name": "operations",
+                    "button": disnake.ui.Button(
+                        label="Операции",
+                        emoji=disnake.PartialEmoji(
+                            name="Operation_Selector",
+                            id=self.game_emoji["Terminal_UI_Operations"]
+                            )
+                        ),
+                    "callback": self.on_callback_operations
                     }
                 ]
         for item in buttons:
@@ -126,7 +170,14 @@ class TerminalUI(disnake.ui.View):
                 "> ` Фиолетовые ` - золотая середина между красными и синими",
                 view=view
                 )
-
+    async def on_callback_operations(self, body: disnake.MessageInteraction):
+        view: Terminal_Operations = Terminal_Operations(self.game_emoji, self.terminal)
+        view.add_item(Terminal_Back_Button(self.terminal, self.game_emoji))
+        await body.response.edit_message(
+                f"# <a:97794computerlove:{self.game_emoji['Terminal_Main_Window']}> Операции\n"
+                "- Список ` доступных ` операций",
+                view=view
+                )
 
 class StartTerminal(commands.Cog):
     def __init__(self, bot):
@@ -135,10 +186,12 @@ class StartTerminal(commands.Cog):
             "Terminal_Process_Open": 1490239885653577829,
             "Terminal_Main_Window": 1490239953970663527,
             "Terminal_UI_Role_Select": 1490239879894925503,
+            "Terminal_UI_Operations": 1490239907103244400,
             "BlueTeam": 1490240057922289805,
             "RedTeam": 1490240083578716211,
             "PurpleTeam": 1490240062171123822,
-            "Star": 1477235374127452160
+            "Star": 1477235374127452160,
+            "Brute-Force Attack": 1490239862857793556
             }
 
     @commands.slash_command(description="Открывает терминал", guild_ids=[1466509350100013226])
