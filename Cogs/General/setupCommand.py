@@ -12,9 +12,9 @@ class SetupFunction(commands.Cog):
     async def setup(
             self,
             body: disnake.ApplicationCommandInteraction,
-            имя: str = commands.Param(description="Ваш псевдоним", min_length=3, max_length=30),
-            возраст: int = commands.Param(description="Ваш возраст", ge=8, le=80),
-            описание: str = commands.Param(description="Ваше описание", min_length=15, max_length=150),
+            имя: str = commands.Param(description="Ваш псевдоним", min_length=3, max_length=30, default="Нет"),
+            возраст: int = commands.Param(description="Ваш возраст", ge=8, le=80, default=0),
+            описание: str = commands.Param(description="Ваше описание", min_length=15, max_length=150, default="Нет"),
             языки: str = commands.Param(description="Языки программировния, которые используете, через запятую", min_length=3, max_length=100, default="Нет"),
             направление: str = commands.Param(description="Ваш стек, или множество стеков", min_length=3, max_length=100, default="Нет"),
             стаж: int = commands.Param(description="Ваш опыт в IT, в годах", ge=0, le=50, default=0),
@@ -25,32 +25,50 @@ class SetupFunction(commands.Cog):
         await body.response.defer(ephemeral=True)
         async with database.db.cursor() as cursor:
             await cursor.execute(
-                    """
-                    INSERT INTO users (user_id, user_name, user_age, user_description)
-                    VALUES (?, ?, ?, ?)
-                    ON CONFLICT (user_id)
-                    DO UPDATE SET
-                    user_name = excluded.user_name,
-                    user_age = excluded.user_age, 
-                    user_description = excluded.user_description
-                    """,
-                    (body.author.id, имя, возраст, описание)
-                    )
+                """
+                INSERT INTO users (user_id, user_name, user_age, user_description)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT (user_id)
+                DO UPDATE SET
+                    user_name = CASE 
+                        WHEN excluded.user_name = 'Нет' THEN users.user_name 
+                        ELSE excluded.user_name END,
+                    user_age = CASE 
+                        WHEN excluded.user_age = 0 THEN users.user_age 
+                        ELSE excluded.user_age END,
+                    user_description = CASE 
+                        WHEN excluded.user_description = 'Нет' THEN users.user_description 
+                        ELSE excluded.user_description END
+                """,
+                (body.author.id, имя, возраст, описание)
+            )
             await cursor.execute(
-                    """
-                    INSERT INTO user_bio (user_id, user_langs, user_tech, user_experience, user_github, user_gitlab, user_status)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
-                    ON CONFLICT (user_id)
-                    DO UPDATE SET
-                    user_langs = excluded.user_langs,
-                    user_tech = excluded.user_tech, 
-                    user_experience = excluded.user_experience,
-                    user_github = excluded.user_github,
-                    user_gitlab = excluded.user_gitlab,
-                    user_status = excluded.user_status
-                    """,
-                    (body.author.id, языки, направление, стаж, github, gitlab, status)
-                    )
+                """
+                INSERT INTO user_bio (user_id, user_langs, user_tech, user_experience, user_github, user_gitlab, user_status)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT (user_id)
+                DO UPDATE SET
+                    user_langs = CASE 
+                        WHEN excluded.user_langs = 'Нет' THEN user_bio.user_langs 
+                        ELSE excluded.user_langs END,
+                    user_tech = CASE 
+                        WHEN excluded.user_tech = 'Нет' THEN user_bio.user_tech 
+                        ELSE excluded.user_tech END,
+                    user_experience = CASE 
+                        WHEN excluded.user_experience = 0 THEN user_bio.user_experience 
+                        ELSE excluded.user_experience END,
+                    user_github = CASE 
+                        WHEN excluded.user_github = 'Не указано' THEN user_bio.user_github 
+                        ELSE excluded.user_github END,
+                    user_gitlab = CASE 
+                        WHEN excluded.user_gitlab = 'Не указано' THEN user_bio.user_gitlab 
+                        ELSE excluded.user_gitlab END,
+                    user_status = CASE 
+                        WHEN excluded.user_status = 'Нет' THEN user_bio.user_status 
+                        ELSE excluded.user_status END
+                """,
+                (body.author.id, языки, направление, стаж, github, gitlab, status)
+            )
             await database.db.commit()
         await body.edit_original_response(
                 f"# <a:main:{self.emojis['Main']}> Кастомизация профиля"
