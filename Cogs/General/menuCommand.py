@@ -93,7 +93,7 @@ class SelectMenu(disnake.ui.StringSelect):
                 user_langs = user_tech = user_status = "Нет"
                 user_achievements = "Нет"
                 user_experience = 0
-                user_github = user_gitlab = "Не указано"
+                user_github = user_gitlab = "` Не указано `"
             else:
                 (user_name,
                     user_age, user_description, user_level,
@@ -116,8 +116,8 @@ class SelectMenu(disnake.ui.StringSelect):
                     f"- Язык(и): ` {user_langs} `\n"
                     f"> Направление: ` {user_tech} `\n"
                     f"> Стаж: ` {user_experience} ` лет\n"
-                    f"> Github: {user_github if user_github != 'Не указано' else '` Не указано `'}\n"
-                    f"> Gitlab: {user_gitlab if user_gitlab != 'Не указано' else '` Не указано `'}\n"
+                    f"> Github: {user_github}\n"
+                    f"> Gitlab: {user_gitlab}\n"
                     f"> Статус: ` {user_status} `\n"
                 ),
                 file=self.get_image("profile"),
