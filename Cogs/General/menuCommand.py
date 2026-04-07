@@ -4,14 +4,15 @@ from pathlib import Path
 from Database import database
 
 class SelectMenu(disnake.ui.StringSelect):
-    def __init__(self):
+    def __init__(self, bot):
+        self.bot = bot
         self.image_type = {
             "profile": "Content/Profile_Image.png",
             "commands": "Content/Commands_Image.png",
             "rules": "Content/Rules_Image.png",
             "information": "Content/Information_Image.png"
         }
-        self.emojis = [1477235374127452160, 1477235040084557848, 1476970558527897610, 1476967440683372654, 1477684758971551896]
+        self.emojis = [1477235374127452160, 1477235040084557848, 1476970558527897610, 1476967440683372654, 1490239879894925503]
         options=[
             disnake.SelectOption(
                 label="Доступные команды", emoji="⚙️", description="Список всего функционала",
@@ -42,7 +43,7 @@ class SelectMenu(disnake.ui.StringSelect):
 
     async def callback(self, body: disnake.MessageInteraction):
         if self.values[0].__contains__("help"):
-            view = DropDownSelect()
+            view = DropDownSelect(self.bot)
             view.message
             await body.response.send_message(
                 f"# {await body.guild.fetch_emoji(self.emojis[0])} Команды\n"
@@ -58,7 +59,7 @@ class SelectMenu(disnake.ui.StringSelect):
             return
         elif self.values[0].__contains__("profile"):
             await body.response.defer()
-            view = DropDownSelect()
+            view = DropDownSelect(self.bot)
             async with database.db.execute(
                 """
                 SELECT
@@ -102,31 +103,30 @@ class SelectMenu(disnake.ui.StringSelect):
             role = (await body.guild.fetch_role(user_level_role)).mention if isinstance(user_level_role, int) else "` Нет `"
             await body.followup.send(
                 content=(
-                    f"## {await body.guild.fetch_emoji(self.emojis[4])} Пользователь\n"
-                    f"> Имя: ` {user_name} `\n"
+                    f"# {self.bot.get_emoji(self.emojis[4])} Ваш профиль, {body.author.mention}\n"
+                    f"- Имя: ` {user_name} `\n"
                     f"> Возраст: ` {user_age} `\n"
-                    f"- Обо мне: ` {user_description} `\n\n"
-                    f"## {await body.guild.fetch_emoji(self.emojis[4])} Статистика\n"
-                    f"> Уровень: ` {user_level} ({user_exp} exp) `\n"
+                    f"> Обо мне: ` {user_description} `\n\n"
+                    f"- Уровень: ` {user_level} ({user_exp} exp) `\n"
                     f"> Звезды: ` {user_stars} `\n"
                     f"> Достижения: ` {user_achievements} `\n"
-                    f"- Роль уровня: {role}\n\n"
-                    f"## {await body.guild.fetch_emoji(self.emojis[4])} Деятельность\n"
-                    f"> Язык: ` {user_langs} `\n"
+                    f"> Роль уровня: {role}\n\n"
+                    f"- Язык: ` {user_langs} `\n"
                     f"> Направление: ` {user_tech} `\n"
-                    f"> Стаж: ` {user_experience} `\n"
+                    f"> Стаж: ` {user_experience} ` лет\n"
                     f"> Github: ` {user_github} `\n"
                     f"> Gitlab: ` {user_gitlab} `\n"
-                    f"- Статус: ` {user_status} `\n"
+                    f"> Статус: ` {user_status} `\n"
                 ),
                 file=self.get_image("profile"),
+                allowed_mentions=disnake.AllowedMentions.none(),
                 view=view,
                 ephemeral=True
             )
             view.message = await body.original_message()
             return
         elif self.values[0].__contains__("rules"):
-            view = DropDownSelect()
+            view = DropDownSelect(self.bot)
             await body.response.send_message(
                 f"# {await body.guild.fetch_emoji(self.emojis[0])} Правила сервера\n"
                 f"- Уважайте ` пользователей ` сервера — ` оскорбления `, ` травля `, ` токсичность `, ` провокации `, ` дискриминация ` запрещены\n"
@@ -218,9 +218,10 @@ class SelectMenu(disnake.ui.StringSelect):
             )
 
 class DropDownSelect(disnake.ui.View):
-    def __init__(self):
+    def __init__(self, bot):
         super().__init__(timeout=60)
-        self.add_item(SelectMenu())
+        self.add_item(SelectMenu(bot))
+        self.bot = bot
         self.message = None
 
     async def on_timeout(self):
@@ -248,7 +249,7 @@ class MenuCommand(commands.Cog):
 
     @commands.slash_command(description="Навигационная команда", guild_ids=[1466509350100013226])
     async def menu(self, body: disnake.ApplicationCommandInteraction):
-        view = DropDownSelect()
+        view = DropDownSelect(self.bot)
         await body.response.send_message(
             f"""
             # {self.bot.get_emoji(self.emojis[0])} Центр навигации
