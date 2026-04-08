@@ -25,16 +25,39 @@ class Terminal_Operations(disnake.ui.View):
 
         buttons = [
                 {
-                    "name": "Brute-Force Attack",
+                    "name": "BruteForce-Attack",
                     "button": disnake.ui.Button(
-                        label="Brute-F Attack",
+                        label="Брутфорс Атака",
                         emoji=disnake.PartialEmoji(
                             name="Brute-Force Attack",
                             id=self.game_emoji["Brute-Force Attack"]
                             )
                         ),
                     "callback": self.on_bruteforce_callback
+                    },
+                    {
+                    "name": "Phishing Game",
+                    "button": disnake.ui.Button(
+                        label="Фишинг",
+                        emoji=disnake.PartialEmoji(
+                            name="Phishing Game",
+                            id=self.game_emoji["Phishing Game"]
+                            )
+                        ),
+                    "callback": self.on_phishing_callback
+                    },
+                    {
+                    "name": "Regex Matcher",
+                    "button": disnake.ui.Button(
+                        label="Верный регистр",
+                        emoji=disnake.PartialEmoji(
+                            name="Regex Matcher",
+                            id=self.game_emoji["Regex Matcher"]
+                            )
+                        ),
+                    "callback": self.on_regex_callback
                     }
+
                 ]
         for btn in buttons:
             button = btn["button"]
@@ -49,6 +72,21 @@ class Terminal_Operations(disnake.ui.View):
                 "Вы выбрали ` Brute-Force ` атаку",
                 view=view
                 )
+    async def on_phishing_callback(self, body: disnake.MessageInteraction):
+        view = View()
+        view.add_item(Terminal_Back_Button(self.terminal, self.game_emoji))
+        await body.response.edit_message(
+                "Вы выбрали ` Phishing Game `",
+                view=view
+                )
+    async def on_regex_callback(self, body: disnake.MessageInteraction):
+        view = View()
+        view.add_item(Terminal_Back_Button(self.terminal, self.game_emoji))
+        await body.response.edit_message(
+                "Вы выбрали ` Regex Matcher `",
+                view=view
+                )
+
 
 class Terminal_RoleSelect(disnake.ui.View):
     def __init__(self, game_emoji: dict, terminal):
@@ -191,7 +229,9 @@ class StartTerminal(commands.Cog):
             "RedTeam": 1490240083578716211,
             "PurpleTeam": 1490240062171123822,
             "Star": 1477235374127452160,
-            "Brute-Force Attack": 1490239862857793556
+            "Brute-Force Attack": 1490239862857793556,
+            "Phishing Game": 1491381567761678508,
+            "Regex Matcher": 1491381582588678205
             }
 
     @commands.slash_command(description="Открывает терминал", guild_ids=[1466509350100013226])
