@@ -1,0 +1,16 @@
+version: "3.8"
+services:
+  bot:
+    build: .
+    env_file: 
+      - .env
+    container_name: mexguard
+
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+        reservations:
+          memory: 512M
