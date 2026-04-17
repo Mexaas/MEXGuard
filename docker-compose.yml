@@ -6,7 +6,7 @@ services:
       - .env
     container_name: mexguard
 
-    restart: unless-stopped
+    restart: "no"
 
     deploy:
       resources:

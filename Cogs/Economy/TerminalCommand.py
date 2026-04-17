@@ -3,6 +3,7 @@ import disnake
 import random
 from disnake.ext import commands
 from disnake.ui import View
+import importlib
 
 class Terminal_Back_Button(disnake.ui.Button):
     def __init__(self, terminal, game_emoji: dict):
@@ -44,16 +45,34 @@ class TerminalUI(disnake.ui.View):
             self.add_item(button)
 
     async def on_callback_ipscan(self, body: disnake.MessageInteraction):
-        ## alpha
+        files = ["Bruteforce", "Phishing", "Regex"]
+        game = [
+            {
+                "difficulty": "Лёгкая",
+                "ip": "192.168."
+            },
+            {
+                "difficulty": "Средняя",
+                "ip": "10."
+            },
+            {
+                "difficulty": "Сложная",
+                "ip": "6."
+            },
+        ]
         scan_phases = [
-            "Определяем маршрут трафика",
-            "Анализируем TTL",
+            "Определение маршрута трафика",
+            "Анализ TTL",
             "Поиск открытых портов",
             "Поиск уязвимостей для входа",
-            "Сбор данных подсети"
+            "Сбор данных подсети",
+            "Попытка сбора информации"
         ]
-        difficulty = ["🟢 Лёгкая", "🟡 Средняя", "🔴 Тяжёлая"]
-        ip = ".".join([str(random.randint(0, 255)) for _ in range(4)])
+        view = View()
+        template = random.choice(game)
+        template_ip = template["ip"]
+        difficulty = template["difficulty"]
+        ip = ".".join([str(random.randint(0, 255)) for _ in range(4 - template_ip.count("."))])
 
         await body.response.edit_message(
             f"# <a:terminal:{self.game_emoji['Terminal_Main_Window']}> Инициализация\n"
@@ -61,21 +80,33 @@ class TerminalUI(disnake.ui.View):
             "> Есть ` 3 ` вида сложностей: чем опаснее, тем вас ` проще ` обнаружить",
             view=None
         )
+        objects = await self.sync_game_buttons(files, "Cogs.Economy.IPScan.")
+        await self.buttons_add(objects, view)
+
         await asyncio.sleep(4)
         for _ in range(3, random.randint(7, 10)):
             await asyncio.sleep(random.randint(1, 2))
             await body.edit_original_response(
                 f"# <a:load:{self.game_emoji['Loading']}> {random.choice(scan_phases)}" 
             )
-        view = View()
-        view.add_item(Terminal_Back_Button(self.terminal, self.game_emoji))
         await body.edit_original_response(
             f"# <a:success:{self.game_emoji['Lamp']}> Найден IP\n"
-            f"- Жертва: ` {ip} `\n"
-            f"> Сложность: ` {random.choice(difficulty)} `",
+            f"- Жертва: ` {template_ip + ip} `\n" 
+            f"> Сложность: ` {difficulty} `",
             view=view
         )
-        
+
+    async def sync_game_buttons(self, files: list, path: str) -> list:
+        objects = []
+        for name in files:
+            module = importlib.import_module(path + name)
+            
+            objects.append(getattr(module, name))
+        return objects
+
+    async def buttons_add(self, objects: list, view):
+        for object in objects:
+            view.add_item(object(self.terminal, self.game_emoji))
 
 class StartTerminal(commands.Cog):
     def __init__(self, bot):
@@ -91,13 +122,18 @@ class StartTerminal(commands.Cog):
             "Star": 1477235374127452160,
             "Brute-Force Attack": 1490239862857793556,
             "Phishing Game": 1491381567761678508,
-            "Regex Matcher": 1491381582588678205,
+            "Regex Game": 1491381582588678205,
             "Loading": 1490239840149573814,
-            "Lamp": 1491381518185271327
+            "Lamp": 1491381518185271327,
+            "ArrowRight": 1491381384919515358
             }
 
     @commands.slash_command(description="Открывает терминал", guild_ids=[1466509350100013226])
     async def terminal(self, body: disnake.ApplicationCommandInteraction):
+        admin_id = 798769818068713492
+        if body.author.id != admin_id:
+            return await body.response.send_message("# :x: Ошибка\n- Отказано в ` доступе `", ephemeral=True)
+
         view: TerminalUI = TerminalUI(self.game_emoji, self.terminal)
         if not body.response.is_done():
             await body.response.defer(ephemeral=True)
@@ -107,9 +143,8 @@ class StartTerminal(commands.Cog):
         await asyncio.sleep(1.2)
         await body.edit_original_response(
                 f"# <a:terminal:{self.game_emoji['Terminal_Main_Window']}> Привет, {body.author.mention}!\n"
-                f"- Терминал: ` открыт ` (/home/**{body.author.name}**)\n"
-                "- Сторона: ` RedTeam `\n"
-                "> Управляйте терминалом через ` GUI `",
+                f"- Терминал: ` открыт `\n"
+                f"> ` /home/{body.author.name} ` <a:right:{self.game_emoji['ArrowRight']}> ` {body.author.name}@{body.author.name}: `",
                 allowed_mentions=disnake.AllowedMentions.none(),
                 view=view
                 )
