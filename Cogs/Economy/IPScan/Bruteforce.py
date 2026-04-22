@@ -18,6 +18,21 @@ class BruteForceGameLogic(disnake.ui.View):
     async def message_update(self):
         if not self.message:
             return
+
+        content = (
+            f"Прогресс: {self.progress} / 100 ` % `\n"
+            f"Прогресс криминала (IDS): {self.heap} / 100 ` % `"
+        )
+        self.heap += 3
+        self.progress += 1
+
+        if self.is_winner():
+            self.stop_game()
+            return self.message.edit("Игра окончена, вы выиграли", view=None)
+        elif self.is_loser():
+            self.stop_game()
+            return self.message.edit("Игра окончена, ты проебал", view=None)
+
         content = (
             f"Прогресс: {self.progress} / 100 ` % `\n"
             f"Прогресс криминала (IDS): {self.heap} / 100 ` % `"
@@ -31,18 +46,30 @@ class BruteForceGameLogic(disnake.ui.View):
         self.message_update.cancel()
         self.stop()
 
-    @disnake.ui.button(label="Ебашить быстрее", style=disnake.ButtonStyle.danger)
+    @disnake.ui.button(label="Продолжить взлом", style=disnake.ButtonStyle.danger)
     async def on_up_click(self, button: disnake.ui.Button, body: disnake.MessageInteraction):
+        if self.is_winner():
+            pass
+
         self.progress += 5
         self.heap += 15 
         await body.response.send_message("Скорость потоков увеличена!", ephemeral=True)
 
-    @disnake.ui.button(label="Замедлить атаку", style=disnake.ButtonStyle.success)
+    @disnake.ui.button(label="Скрыть подозрения", style=disnake.ButtonStyle.success)
     async def on_down_click(self, button: disnake.ui.Button, body: disnake.MessageInteraction):
+        if self.is_loser():
+            pass
+
         self.heap -= 10
-        if self.heap < 0: self.heap = 0
+        if self.heap < 0: 
+            self.heap = 0
         await body.response.send_message("Залегли на дно. Подозрение падает...", ephemeral=True)
 
+    def is_loser(self) -> bool:
+        if self.heap >= 100: return True
+
+    def is_winner(self) -> bool:
+        if self.progress >= 100: return True
 
 class Bruteforce(disnake.ui.Button):
     def __init__(self, terminal, game_emoji):
@@ -58,7 +85,7 @@ class Bruteforce(disnake.ui.Button):
         )
         
     async def callback(self, body: disnake.MessageInteraction):
-        view = BruteForceGameLogic(self.terminal, self.game_emoji, body.author, 3)
+        view = BruteForceGameLogic(self.terminal, self.game_emoji, body.author, 1)
         
         await body.response.edit_message(content="Запуск модулей взлома...", view=view)
         view.message = await body.original_message() 
