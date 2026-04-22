@@ -1,45 +1,47 @@
 import disnake
 from disnake.ui import View
 from disnake.ext import commands, tasks
-from Cogs.Economy.TerminalCommand import Terminal_Back_Button
 
 class BruteForceGameLogic(disnake.ui.View):
     def __init__(self, terminal, game_emoji,
                  player: disnake.Member,
-                 progress_default_tick: int,
-                 heap_default_tick: int,
                  message_default_tick: int
             ):
-        super().__init__(timeout=None)
+        super().__init__(timeout=300) 
         self.player = player
         self.progress = 0
         self.heap = 0
-        self.progress_update_tick = 1
-        self.heap_update_tick = 1
-        self.message_update_tick = 1
+        self.message = None
+        self.message_update.change_interval(seconds=message_default_tick)
 
-    @disnake.ui.button(
-        label="Ебашить быстрее",
-        style=disnake.ButtonStyle.danger
-    )
-    async def on_up_click(self, body: disnake.MessageInteraction):
-        await body.response.send_message("up", ephemeral=True)
-
-    @disnake.ui.button(
-        label="Замедлить атаку",
-        style=disnake.ButtonStyle.success
-    )
-    async def on_down_click(self, body: disnake.MessageInteraction):
-        await body.response.send_message("down", ephemeral=True)
-
-
-    @tasks.loop(seconds=message_default_tick)
-    async def message_update(self, body: disnake.MessageInteraction):
-        await body.response.edit_message(
-            f"Прогресс: {self.progress} / 100 ` % `"
-            f"Прогресс криминала: {self.heap} / 100 ` % `",
-            view=self
+    @tasks.loop(seconds=1.0)
+    async def message_update(self):
+        if not self.message:
+            return
+        content = (
+            f"Прогресс: {self.progress} / 100 ` % `\n"
+            f"Прогресс криминала (IDS): {self.heap} / 100 ` % `"
         )
+        try:
+            await self.message.edit(content=content, view=self)
+        except disnake.NotFound:
+            self.stop_game()
+
+    def stop_game(self):
+        self.message_update.cancel()
+        self.stop()
+
+    @disnake.ui.button(label="Ебашить быстрее", style=disnake.ButtonStyle.danger)
+    async def on_up_click(self, button: disnake.ui.Button, body: disnake.MessageInteraction):
+        self.progress += 5
+        self.heap += 15 
+        await body.response.send_message("Скорость потоков увеличена!", ephemeral=True)
+
+    @disnake.ui.button(label="Замедлить атаку", style=disnake.ButtonStyle.success)
+    async def on_down_click(self, button: disnake.ui.Button, body: disnake.MessageInteraction):
+        self.heap -= 10
+        if self.heap < 0: self.heap = 0
+        await body.response.send_message("Залегли на дно. Подозрение падает...", ephemeral=True)
 
 
 class Bruteforce(disnake.ui.Button):
@@ -54,9 +56,10 @@ class Bruteforce(disnake.ui.Button):
                id=game_emoji["Brute-Force Attack"] 
             )
         )
+        
     async def callback(self, body: disnake.MessageInteraction):
-        view = BruteForceGameLogic(self.terminal, self.game_emoji, body.author, 1,1,1)
-        await body.response.edit_message(
-            "BruteForce",
-            view=view 
-        )
+        view = BruteForceGameLogic(self.terminal, self.game_emoji, body.author, 3)
+        
+        await body.response.edit_message(content="Запуск модулей взлома...", view=view)
+        view.message = await body.original_message() 
+        view.message_update.start()
